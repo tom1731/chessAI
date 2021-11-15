@@ -1,0 +1,3 @@
+real chess notation
+improve AI
+omline game
