@@ -59,111 +59,36 @@ class GameState():
     Get all the pawn moves for the pawn located at row, col and add these moves to the list
     '''
     def get_pawn_moves(self, row, col, moves):
-        if self.white_to_move: # white pawn move
-            if self.board[row-1][col] == '--': # 1 square pawn move
-                moves.append(Move((row, col), (row-1, col), self.board))
-                if row == 6 and self.board[row-2][col] == '--': # 2 square pawn move
-                    moves.append(Move((row, col), (row-2, col), self.board))
-            if col-1 >= 0:  # ennemy piece to capture to the left
-                if self.board[row-1][col-1][0] == 'b':
-                    moves.append(Move((row, col), (row-1, col-1), self.board))
-            if col+1 <= 7:  # ennemy piece to capture to the right
-                if self.board[row-1][col+1][0] == 'b':
-                    moves.append(Move((row, col), (row-1, col+1), self.board))
-
-        else:  # black pawn move
-            if self.board[row+1][col] == '--':  # 1 square pawn move
-                moves.append(Move((row, col), (row+1, col), self.board))
-                if row == 1 and self.board[row+2][col] == '--': # 2 square pawn move
-                    moves.append(Move((row, col), (row+2, col), self.board))
-            if col-1 >= 0:  # ennemy piece to capture to the left
-                if self.board[row+1][col-1][0] == 'w':
-                    moves.append(Move((row, col), (row+1, col-1), self.board))
-            if col+1 <= 7:  # ennemy piece to capture to the right
-                if self.board[row+1][col+1][0] == 'w':
-                    moves.append(Move((row, col), (row+1, col+1), self.board))
+        direction = -1 if self.white_to_move else 1
+        enemy_color = 'b' if self.white_to_move else 'w'
+        never_moved = 6 if self.white_to_move else 1
+        if self.board[row + direction][col] == '--': # 1 square pawn move
+            moves.append(Move((row, col), (row + direction, col), self.board))
+            if row == never_moved and self.board[row + 2*direction][col] == '--': # 2 square pawn move
+                moves.append(Move((row, col), (row + 2*direction, col), self.board))
+        if col-1 >= 0 and self.board[row + direction][col-1][0] == enemy_color: # enemy piece capture to the left
+            moves.append(Move((row, col), (row + direction, col-1), self.board))
+        if col+1 <= 7 and self.board[row + direction][col+1][0] == enemy_color: # enemy piece capture to the right
+            moves.append(Move((row, col), (row + direction, col+1), self.board))
 
     '''
     Get all the rook moves for the pawn located at row, col and add these moves to the list
     '''
     def get_rook_moves(self, row, col, moves):
-        if self.white_to_move: # white rook move
-            end_col = col # horizontal move
-            while end_col-1 >= 0:
-                end_col -= 1
-                if self.board[row][end_col] == '--': # left move
-                    moves.append(Move((row, col), (row, end_col), self.board))
-                elif self.board[row][end_col][0] == 'b': # left capture
-                    moves.append(Move((row, col), (row, end_col), self.board))
-                    break
-                else: break
-            end_col = col
-            while end_col+1 <= 7:
-                end_col += 1
-                if self.board[row][end_col] == '--': # right move
-                    moves.append(Move((row, col), (row, end_col), self.board))
-                elif self.board[row][end_col][0] == 'b': # right capture
-                    moves.append(Move((row, col), (row, end_col), self.board))
-                    break
-                else: break
-            end_row = row # vertical move
-            while end_row-1 >= 0:
-                end_row -= 1
-                if self.board[end_row][col] == '--': # up move
-                    moves.append(Move((row, col), (end_row, col), self.board))
-                elif self.board[end_row][col][0] == 'b': # up capture
-                    moves.append(Move((row, col), (end_row, col), self.board))
-                    break
-                else: break
+        direction = ((-1, 0), (0, -1), (1, 0), (0, 1)) # up, left, down, right
+        enemy_color = 'b' if self.white_to_move else 'w'
+        for d in direction:
             end_row = row
-            while end_row+1 <= 7:
-                end_row += 1
-                if self.board[end_row][col] == '--': # down move
-                    moves.append(Move((row, col), (end_row, col), self.board))
-                elif self.board[end_row][col][0] == 'b': # down capture
-                    moves.append(Move((row, col), (end_row, col), self.board))
-                    break
-                else: break
-
-        else: # black rook move
-            end_col = col # horizontal move
-            while end_col-1 >= 0:
-                end_col -= 1
-                if self.board[row][end_col] == '--': # left move
-                    moves.append(Move((row, col), (row, end_col), self.board))
-                elif self.board[row][end_col][0] == 'w': # left capture
-                    moves.append(Move((row, col), (row, end_col), self.board))
-                    break
-                else: break
             end_col = col
-            while end_col+1 <= 7:
-                end_col += 1
-                if self.board[row][end_col] == '--': # right move
-                    moves.append(Move((row, col), (row, end_col), self.board))
-                elif self.board[row][end_col][0] == 'w': # right capture
-                    moves.append(Move((row, col), (row, end_col), self.board))
+            while 0 <= end_row + d[0] < 8 and 0 <= end_col + d[1] < 8:
+                end_row += d[0]
+                end_col += d[1]
+                if self.board[end_row][end_col] == '--': # move
+                    moves.append(Move((row, col), (end_row, end_col), self.board))
+                elif self.board[end_row][end_col][0] == enemy_color: # capture
+                    moves.append(Move((row, col), (end_row, end_col), self.board))
                     break
                 else: break
-            end_row = row # vertical move
-            while end_row-1 >= 0:
-                end_row -= 1
-                if self.board[end_row][col] == '--': # up move
-                    moves.append(Move((row, col), (end_row, col), self.board))
-                elif self.board[end_row][col][0] == 'w': # up capture
-                    moves.append(Move((row, col), (end_row, col), self.board))
-                    break
-                else: break
-            end_row = row
-            while end_row+1 <= 7:
-                end_row += 1
-                if self.board[end_row][col] == '--': # down move
-                    moves.append(Move((row, col), (end_row, col), self.board))
-                elif self.board[end_row][col][0] == 'w': # down capture
-                    moves.append(Move((row, col), (end_row, col), self.board))
-                    break
-                else: break
-
-
 
     '''
     Get all the knight moves for the pawn located at row, col and add these moves to the list
