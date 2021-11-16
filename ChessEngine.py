@@ -5,7 +5,7 @@ class GameState():
             ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
             ['--', '--', '--', '--', '--', '--', '--', '--'],
             ['--', '--', '--', '--', '--', '--', '--', '--'],
-            ['--', 'bR', '--', 'wR', '--', '--', '--', '--'],
+            ['--', '--', '--', '--', '--', '--', '--', '--'],
             ['--', '--', '--', '--', '--', '--', '--', '--'],
             ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
             ['wR', 'wN', 'wB', 'wQ', 'wK', 'wB', 'wN', 'wR']]
@@ -19,6 +19,11 @@ class GameState():
         }
         self.white_to_move = True
         self.move_log = []
+        self.white_king_location = (7, 4)
+        self.black_king_location = (0, 4)
+        self.in_check = False
+        self.pins = []
+        self.checks = []
 
     '''
     Takes a move as a parameter and executes it (not work with castling, pawn prootion and en-passant)
@@ -28,6 +33,11 @@ class GameState():
         self.board[move.end_row][move.end_col] = move.piece_moved
         self.move_log.append(move)
         self.white_to_move = not self.white_to_move
+        # update the king location if moved
+        if move.piece_moved == 'wK':
+            self.white_king_location = (move.end_row, move.end_col)
+        elif move.piece_moved == 'bK':
+            self.black_king_location = (move.end_row, move.end_col)
 
     def undo_move(self):
         if len(self.move_log) != 0:
@@ -35,12 +45,18 @@ class GameState():
             self.board[move.start_row][move.start_col] = move.piece_moved
             self.board[move.end_row][move.end_col] = move.piece_captured
             self.white_to_move = not self.white_to_move
+            # update the king's position if needed
+        if move.piece_moved == 'wK':
+            self.white_king_location = (move.start_row, move.start_col)
+        elif move.piece_moved == 'bK':
+            self.black_king_location = (move.start_row, move.start_col)
 
     '''
     All moves considering checks
     '''
     def get_valid_moves(self):
-        return self.get_all_possible_moves()
+        moves = []
+
 
     '''
     All moves without considering checks
@@ -94,25 +110,52 @@ class GameState():
     Get all the knight moves for the pawn located at row, col and add these moves to the list
     '''
     def get_knight_moves(self, row, col, moves):
-        pass
+        direction = ((-2, -1), (-2, 1), (-1, -2), (-1, 2), (1, -2), (1, 2), (2, -1), (2, 1)) # up-left, up-right, left-up, left-down, right-up, right-down, down-left, down-right
+        ally_color = 'w' if self.white_to_move else 'b'
+        for d in direction:
+            end_row = row + d[0]
+            end_col = col + d[1]
+            if 0 <= end_row < 8 and 0 <= end_col < 8:
+                if self.board[end_row][end_col][0] != ally_color:
+                    moves.append(Move((row, col), (end_row, end_col), self.board))
 
     '''
     Get all the bishop moves for the pawn located at row, col and add these moves to the list
     '''
     def get_bishop_moves(self, row, col, moves):
-        pass
+        direction = ((-1, -1), (-1, 1), (1, -1), (1, 1)) # up-left, up-right, down-left, down-right
+        enemy_color = 'b' if self.white_to_move else 'w'
+        for d in direction:
+            end_row = row
+            end_col = col
+            while 0 <= end_row + d[0] < 8 and 0 <= end_col + d[1] < 8:
+                end_row += d[0]
+                end_col += d[1]
+                if self.board[end_row][end_col] == '--': # move
+                    moves.append(Move((row, col), (end_row, end_col), self.board))
+                elif self.board[end_row][end_col][0] == enemy_color: # capture
+                    moves.append(Move((row, col), (end_row, end_col), self.board))
+                    break
+                else: break
 
     '''
     Get all the queen moves for the pawn located at row, col and add these moves to the list
     '''
     def get_queen_moves(self, row, col, moves):
-        pass
-
+        self.get_rook_moves(row, col, moves)
+        self.get_bishop_moves(row, col, moves)
     '''
     Get all the king moves for the pawn located at row, col and add these moves to the list
     '''
     def get_king_moves(self, row, col, moves):
-        pass
+        direction = ((-1, -1), (-1, 1), (1, -1), (1, 1), (-1, 0), (0, -1), (1, 0), (0, 1)) # up-left, up-right, down-left, down-right, up, left, down, right
+        ally_color = 'w' if self.white_to_move else 'b'
+        for d in direction:
+            end_row = row + d[0]
+            end_col = col + d[1]
+            if 0 <= end_row < 8 and 0 <= end_col < 8:
+                if self.board[end_row][end_col][0] != ally_color:
+                    moves.append(Move((row, col), (end_row, end_col), self.board))
 
 class Move():
     rows_to_ranks = {7: '1', 6: '2', 5: '3', 4: '4',

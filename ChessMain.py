@@ -49,12 +49,14 @@ def main():
                     player_clicks.append(square_selected)
                 if len(player_clicks) == 2:
                     move = ChessEngine.Move(player_clicks[0], player_clicks[1], gs.board)
-                    print(move.get_chess_notation())
                     if move in valid_moves:
                         gs.make_move(move)
                         move_made = True
-                    square_selected = ()
-                    player_clicks = []
+                        square_selected = ()
+                        player_clicks = []
+                        print(move.get_chess_notation())
+                    else:
+                        player_clicks = [square_selected]
             # key handler
             elif e.type == pygame.KEYDOWN:
                 if e.key == pygame.K_z: # undo when z is pressed
