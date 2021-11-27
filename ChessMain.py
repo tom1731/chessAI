@@ -1,5 +1,6 @@
 import pygame
 import ChessEngine
+import ChessAI
 
 width = height = 512
 dimension = 8
@@ -33,14 +34,17 @@ def main():
     square_selected = ()
     player_clicks = []
     game_over = False
+    player_one = False # If a human is playing white, then this will be True. If an AI is playing, then False.
+    player_two = False # Same as above but for black
 
     while running:
+        human_turn = (gs.white_to_move and player_one) or (not gs.white_to_move and player_two)
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
                 running = False
             # mouse handler
             elif e.type == pygame.MOUSEBUTTONDOWN:
-                if not game_over:
+                if not game_over and human_turn:
                     location = pygame.mouse.get_pos()
                     col = location[0] // square_size
                     row = location[1] // square_size
@@ -75,6 +79,15 @@ def main():
                     player_clicks = []
                     move_made = False
                     animate = False
+
+        # AI move finder
+        if not game_over and not human_turn:
+            ai_move = ChessAI.find_best_move(gs, valid_moves)
+            if ai_move == None:
+                ai_move = ChessAI.find_random_move(valid_moves)
+            gs.make_move(ai_move)
+            move_made = True
+            animate = False
 
         if move_made:
             if animate:
