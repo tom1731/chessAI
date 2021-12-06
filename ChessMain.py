@@ -34,8 +34,8 @@ def main():
     square_selected = ()
     player_clicks = []
     game_over = False
-    player_one = False # If a human is playing white, then this will be True. If an AI is playing, then False.
-    player_two = False # Same as above but for black
+    player_one = True # white player, set False for AI
+    player_two = False # black player, set False for AI
 
     while running:
         human_turn = (gs.white_to_move and player_one) or (not gs.white_to_move and player_two)
@@ -72,6 +72,7 @@ def main():
                     gs.undo_move()
                     move_made = True
                     animate = False
+                    game_over = False
                 if e.key == pygame.K_r: # reset the board when 'r' is pressed
                     gs = ChessEngine.GameState()
                     valid_moves = gs.get_valid_moves()
@@ -79,15 +80,16 @@ def main():
                     player_clicks = []
                     move_made = False
                     animate = False
+                    game_over = False
 
         # AI move finder
         if not game_over and not human_turn:
-            ai_move = ChessAI.find_best_move(gs, valid_moves)
+            ai_move = ChessAI.find_best_move_min_max(gs, valid_moves)
             if ai_move == None:
                 ai_move = ChessAI.find_random_move(valid_moves)
             gs.make_move(ai_move)
             move_made = True
-            animate = False
+            animate = True # set animate here
 
         if move_made:
             if animate:
