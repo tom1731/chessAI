@@ -11,7 +11,7 @@ piece_score = {
 
 checkmate_score = 1000
 stalemate_score = 0
-depth = 1
+depth_game = 2
 
 '''
 picks and return a random move
@@ -20,47 +20,13 @@ def find_random_move(valid_moves):
     return valid_moves[random.randint(0, len(valid_moves)-1)]
 
 '''
-find the best move based on material alone
-'''
-def find_best_move(gs, valid_moves):
-    turn_multiplayer = 1 if gs.white_to_move else -1
-    opponent_min_max_score = checkmate_score
-    best_player_move = None
-    random.shuffle(valid_moves)
-    for player_move in valid_moves:
-        gs.make_move(player_move)
-        opponents_move = gs.get_valid_moves()
-        if gs.stale_mate:
-            opponent_max_score = stalemate_score
-        elif gs.check_mate:
-            opponent_max_score = -check_mate
-        else:
-            opponent_max_score = -checkmate_score
-            for opponents_move in opponents_move:
-                gs.make_move(opponents_move)
-                gs.get_valid_moves()
-                if gs.check_mate:
-                    score = checkmate_score
-                elif gs.stale_mate:
-                    score = stalemate_score
-                else:
-                    score = -turn_multiplayer * score_material(gs.board)
-                if score > opponent_max_score:
-                    opponent_max_score = score
-                gs.undo_move()
-        if opponent_max_score < opponent_min_max_score :
-            opponent_min_max_score = opponent_max_score
-            best_player_move = player_move
-        gs.undo_move()
-    return best_player_move
-
-'''
 helper methode to make first recursive call
 '''
-def find_best_move_min_max(gs, valid_moves):
+def find_best_move(gs, valid_moves):
     global next_move
     next_move = None
-    find_move_min_max(gs, valid_moves, depth, gs.white_to_move)
+    random.shuffle(valid_moves)
+    find_move_negamax_alpha_beta(gs, valid_moves, depth_game, -checkmate_score, checkmate_score, 1 if gs.white_to_move else -1)
     return next_move
 
 def find_move_min_max(gs, valid_moves, depth, white_to_move):
@@ -76,7 +42,7 @@ def find_move_min_max(gs, valid_moves, depth, white_to_move):
             score = find_move_min_max(gs, next_moves, depth-1, False)
             if score > max_score:
                 max_score = score
-                if depth == depth:
+                if depth == depth_game:
                     next_move = move
             gs.undo_move()
         return max_score
@@ -89,10 +55,50 @@ def find_move_min_max(gs, valid_moves, depth, white_to_move):
             score = find_move_min_max(gs, next_moves, depth-1, True)
             if score < min_score:
                 min_score = score
-                if depth == depth:
+                if depth == depth_game:
                     next_move = move
             gs.undo_move()
         return min_score
+
+def find_move_negamax(gs, valid_moves, depth, turn_multiplayer):
+    global next_move
+    if depth == 0:
+        return turn_multiplayer * score_board(gs)
+
+    max_score = -checkmate_score
+    for move in valid_moves:
+        gs.make_move(move)
+        next_moves = gs.get_valid_moves()
+        score = -find_move_negamax(gs, next_moves, depth-1, -turn_multiplayer)
+        if score > max_score:
+            max_score = score
+            if depth == depth_game:
+                next_move = move
+        gs.undo_move()
+    return max_score
+
+def find_move_negamax_alpha_beta(gs, valid_moves, depth, alpha, beta, turn_multiplayer):
+    global next_move
+    if depth == 0:
+        return turn_multiplayer * score_board(gs)
+
+    # move ordering - implement later
+    max_score = -checkmate_score
+    for move in valid_moves:
+        gs.make_move(move)
+        next_moves = gs.get_valid_moves()
+        score = -find_move_negamax_alpha_beta(gs, next_moves, depth-1, -beta, -alpha, -turn_multiplayer)
+        if score > max_score:
+            max_score = score
+            if depth == depth_game:
+                next_move = move
+        gs.undo_move()
+        if max_score > alpha:
+            alpha = max_score
+        if alpha >= beta:
+            break
+
+    return max_score
 
 '''
 A positive score is good for white, negative is good for black
@@ -100,14 +106,14 @@ A positive score is good for white, negative is good for black
 def score_board(gs):
     if gs.check_mate:
         if gs.white_to_move:
-            return -check_mate # black wins
+            return -checkmate_score # black wins
         else:
-            return check_mate # white wins
+            return checkmate_score # white wins
     elif gs.stale_mate:
         return stale_mate
 
     score = 0
-    for row in board:
+    for row in gs.board:
         for square in row:
             if square[0] == 'w':
                 score += piece_score[square[1]]
