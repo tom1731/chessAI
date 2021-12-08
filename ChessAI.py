@@ -11,7 +11,7 @@ piece_score = {
 
 checkmate_score = 1000
 stalemate_score = 0
-depth_game = 2
+depth_game = 3
 
 '''
 picks and return a random move

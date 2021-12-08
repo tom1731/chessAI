@@ -2,9 +2,11 @@ import pygame
 import ChessEngine
 import ChessAI
 
-width = height = 512
+board_width = board_height = 512
+move_log_panel_width = 300
+move_log_panel_height = board_height
 dimension = 8
-square_size = height // dimension
+square_size = board_height // dimension
 max_fps = 15
 images = {}
 
@@ -21,9 +23,10 @@ The main driver for our code. This will handle user input and updating the graph
 '''
 def main():
     pygame.init()
-    screen = pygame.display.set_mode((width, height))
+    screen = pygame.display.set_mode((board_width + move_log_panel_width, board_height))
     clock = pygame.time.Clock()
     screen.fill(pygame.Color('white'))
+    move_log_font = pygame.font.SysFont('Arial', 14, False, False)
     gs = ChessEngine.GameState()
     valid_moves = gs.get_valid_moves()
     move_made = False
@@ -48,7 +51,7 @@ def main():
                     location = pygame.mouse.get_pos()
                     col = location[0] // square_size
                     row = location[1] // square_size
-                    if square_selected == (row, col):
+                    if square_selected == (row, col) or col >= 8:
                         square_selected = ()
                         player_clicks = []
                     else:
@@ -98,20 +101,35 @@ def main():
             move_made = False
             animate = False
 
-        draw_game_state(screen, gs, valid_moves, square_selected)
+        draw_game_state(screen, gs, valid_moves, square_selected, move_log_font)
 
-        if gs.check_mate:
+        if gs.check_mate or gs.stale_mate:
             game_over = True
-            if gs.white_to_move:
-                draw_text(screen, 'Black wins')
-            else:
-                draw_text(screen, 'White wins')
-        elif gs.stale_mate:
-            game_over = True
-            draw_text(screen, 'Stalemate')
+            text = 'Stalemate' if gs.stale_mate else 'Black wins' if gs.white_to_move else 'White wins'
+            draw_end_game_text(screen, text)
 
         clock.tick(max_fps)
         pygame.display.flip()
+
+'''
+Responsible for all the graphics within a current game state.
+'''
+def draw_game_state(screen, gs, valid_moves, square_selected, move_log_font):
+    draw_board(screen)
+    highlight_squares(screen, gs, valid_moves, square_selected)
+    draw_pieces(screen, gs.board)
+    draw_move_log(screen, gs, move_log_font)
+
+'''
+Draw the square on the board.
+'''
+def draw_board(screen):
+    global colors
+    colors = [pygame.Color('white'), pygame.Color('gray')]
+    for row in range(dimension):
+        for col in range(dimension):
+            color = colors[((row + col) % 2)]
+            pygame.draw.rect(screen, color, pygame.Rect(col*square_size, row*square_size, square_size, square_size))
 
 '''
 Highlight sqaure selected and moves for piece selected
@@ -131,27 +149,6 @@ def highlight_squares(screen, gs, valid_moves, square_selected):
                 if move.start_row == row and move.start_col == col:
                     screen.blit(surf, (move.end_col*square_size, move.end_row*square_size))
 
-
-
-'''
-Responsible for all the graphics within a current game state.
-'''
-def draw_game_state(screen, gs, valid_moves, square_selected):
-    draw_board(screen)
-    highlight_squares(screen, gs, valid_moves, square_selected)
-    draw_pieces(screen, gs.board)
-
-'''
-Draw the square on the board.
-'''
-def draw_board(screen):
-    global colors
-    colors = [pygame.Color('white'), pygame.Color('gray')]
-    for row in range(dimension):
-        for col in range(dimension):
-            color = colors[((row + col) % 2)]
-            pygame.draw.rect(screen, color, pygame.Rect(col*square_size, row*square_size, square_size, square_size))
-
 '''
 Draw the pieces on the board using the current GameState.board.
 '''
@@ -161,6 +158,33 @@ def draw_pieces(screen, board):
             piece = board[row][col]
             if piece != '--':
                 screen.blit(images[piece], pygame.Rect(col*square_size, row*square_size, square_size, square_size))
+
+'''
+draws the move log
+'''
+def draw_move_log(screen, gs, font):
+    move_log_rect = pygame.Rect(board_width, 0, move_log_panel_width, move_log_panel_height)
+    pygame.draw.rect(screen, pygame.Color('black'), move_log_rect)
+    move_log = gs.move_log
+    move_texts = []
+    for i in range(0, len(move_log), 2):
+        move_string = str(i // 2 + 1) + '. ' + str(move_log[i]) + ' '
+        if i + 1 < len(move_log):
+            move_string += str(move_log[i+1]) + '    '
+        move_texts.append(move_string)
+    moves_per_row = 3
+    padding = 5
+    line_spacing = 2
+    text_y = padding
+    for i in range(0, len(move_texts), moves_per_row):
+        text = ''
+        for j in range(moves_per_row):
+            if i + j < len(move_texts):
+                text += move_texts[i+j]
+        text_object = font.render(text, True, pygame.Color('White'))
+        text_location = move_log_rect.move(padding, text_y)
+        screen.blit(text_object, text_location)
+        text_y += text_object.get_height() + line_spacing
 
 '''
 Animating a move
@@ -182,13 +206,15 @@ def animate_move(move, screen, board, clock):
         pygame.draw.rect(screen, color, end_square)
         # draw captured piece onto rectangle
         if move.piece_captured != '--':
+            if move.is_enpassant_move:
+                end_square = pygame.Rect(move.end_col*square_size, move.start_row*square_size, square_size, square_size)
             screen.blit(images[move.piece_captured], end_square)
         # draw moving piece
         screen.blit(images[move.piece_moved], pygame.Rect(col*square_size, row*square_size, square_size, square_size))
         pygame.display.flip()
         clock.tick(60)
 
-def draw_text(screen, text):
+def draw_end_game_text(screen, text):
     font = pygame.font.SysFont('Helvitca', 64, True, False)
     text_object = font.render(text, 0, pygame.Color('White'))
     text_location = pygame.Rect(0, 0, width, height).move(width/2 - text_object.get_width()/2, height/2 - text_object.get_height()/2)
