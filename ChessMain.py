@@ -1,6 +1,7 @@
 import pygame
 import ChessEngine
 import ChessAI
+from multiprocessing import Process, Queue
 
 board_width = board_height = 512
 move_log_panel_width = 300
@@ -37,8 +38,11 @@ def main():
     square_selected = ()
     player_clicks = []
     game_over = False
-    player_one = False # white player, set False for AI
-    player_two = False # black player, set False for AI
+    player_one = False # white player, set False for AI, True for human
+    player_two = False # black player, set False for AI, True for human
+    ai_thinking = False
+    move_finder_process = None
+    move_undone = False
 
     while running:
         human_turn = (gs.white_to_move and player_one) or (not gs.white_to_move and player_two)
@@ -47,7 +51,7 @@ def main():
                 running = False
             # mouse handler
             elif e.type == pygame.MOUSEBUTTONDOWN:
-                if not game_over and human_turn:
+                if not game_over:
                     location = pygame.mouse.get_pos()
                     col = location[0] // square_size
                     row = location[1] // square_size
@@ -57,14 +61,14 @@ def main():
                     else:
                         square_selected = (row, col)
                         player_clicks.append(square_selected)
-                    if len(player_clicks) == 2:
+                    if len(player_clicks) == 2 and human_turn:
                         move = ChessEngine.Move(player_clicks[0], player_clicks[1], gs.board)
                         print(move.get_chess_notation())
                         for i in range(len(valid_moves)):
                             if move == valid_moves[i]:
                                 gs.make_move(valid_moves[i])
                                 move_made = True
-                                animate = True
+                                animate = True # human animate
                                 square_selected = ()
                                 player_clicks = []
                         if not move_made:
@@ -76,6 +80,11 @@ def main():
                     move_made = True
                     animate = False
                     game_over = False
+                    if ai_thinking:
+                        move_finder_process.terminate()
+                        ai_thinking = False
+                    move_undone = True
+
                 if e.key == pygame.K_r: # reset the board when 'r' is pressed
                     gs = ChessEngine.GameState()
                     valid_moves = gs.get_valid_moves()
@@ -84,15 +93,27 @@ def main():
                     move_made = False
                     animate = False
                     game_over = False
+                    if ai_thinking:
+                        move_finder_process.terminate()
+                        ai_thinking = False
+                    move_undone = True
 
         # AI move finder
-        if not game_over and not human_turn:
-            ai_move = ChessAI.find_best_move(gs, valid_moves)
-            if ai_move == None:
-                ai_move = ChessAI.find_random_move(valid_moves)
-            gs.make_move(ai_move)
-            move_made = True
-            animate = True # set animate here
+        if not game_over and not human_turn and not move_undone:
+            if not ai_thinking:
+                ai_thinking = True
+                return_queue = Queue()
+                move_finder_process = Process(target=ChessAI.find_best_move, args=(gs, valid_moves, return_queue))
+                move_finder_process.start()
+
+            if not move_finder_process.is_alive():
+                ai_move = return_queue.get()
+                if ai_move == None:
+                    ai_move = ChessAI.find_random_move(valid_moves)
+                gs.make_move(ai_move)
+                move_made = True
+                animate = True # ai animate
+                ai_thinking = False
 
         if move_made:
             if animate:
@@ -100,6 +121,7 @@ def main():
             valid_moves = gs.get_valid_moves()
             move_made = False
             animate = False
+            move_undone = False
 
         draw_game_state(screen, gs, valid_moves, square_selected, move_log_font)
 

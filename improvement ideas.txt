@@ -1,5 +1,7 @@
 real chess notation
-improve AI
+deeplearning AI
 online game
 highlight last move made
-undo enpassant bug fix
+numpy array
+stalemate rules (3 times same move)
+menu to select AI/Human
