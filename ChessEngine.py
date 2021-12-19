@@ -1,6 +1,8 @@
+import numpy as np
+
 class GameState():
     def __init__(self):
-        self.board = [
+        self.board = np.array([
             ['bR', 'bN', 'bB', 'bQ', 'bK', 'bB', 'bN', 'bR'],
             ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
             ['--', '--', '--', '--', '--', '--', '--', '--'],
@@ -8,7 +10,9 @@ class GameState():
             ['--', '--', '--', '--', '--', '--', '--', '--'],
             ['--', '--', '--', '--', '--', '--', '--', '--'],
             ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
-            ['wR', 'wN', 'wB', 'wQ', 'wK', 'wB', 'wN', 'wR']]
+            ['wR', 'wN', 'wB', 'wQ', 'wK', 'wB', 'wN', 'wR']
+            ])
+
         self.move_functions = {
             'p': self.get_pawn_moves,
             'R': self.get_rook_moves,
@@ -17,6 +21,7 @@ class GameState():
             'Q': self.get_queen_moves,
             'K': self.get_king_moves
         }
+
         self.white_to_move = True
         self.move_log = []
         self.white_king_location = (7, 4)

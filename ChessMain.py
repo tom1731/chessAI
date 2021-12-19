@@ -17,7 +17,7 @@ Initialize a global dictionnary of images.
 def load_images():
     pieces = ['wp', 'wR', 'wN', 'wB', 'wQ', 'wK', 'bp', 'bR', 'bN', 'bB', 'bQ', 'bK']
     for piece in pieces:
-        images[piece] = pygame.transform.scale(pygame.image.load('images/' + piece + '.png'), (square_size, square_size))
+        images[piece] = pygame.transform.scale(pygame.image.load('images/' + piece + '.png').convert_alpha(), (square_size, square_size))
 
 '''
 The main driver for our code. This will handle user input and updating the graphics.
@@ -239,7 +239,7 @@ def animate_move(move, screen, board, clock):
 def draw_end_game_text(screen, text):
     font = pygame.font.SysFont('Helvitca', 64, True, False)
     text_object = font.render(text, 0, pygame.Color('White'))
-    text_location = pygame.Rect(0, 0, width, height).move(width/2 - text_object.get_width()/2, height/2 - text_object.get_height()/2)
+    text_location = pygame.Rect(0, 0, board_width, board_height).move(board_width/2 - text_object.get_width()/2, board_height/2 - text_object.get_height()/2)
     screen.blit(text_object, text_location)
     text_object = font.render(text, 0, pygame.Color('Black'))
     screen.blit(text_object, text_location.move(2, 2))
