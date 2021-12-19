@@ -97,12 +97,18 @@ def find_random_move(valid_moves):
 '''
 helper methode to make first recursive call
 '''
-def find_best_move(gs, valid_moves, return_queue):
+def find_best_move(gs, valid_moves, return_queue, nbProcess):
+
+    print(f"Process {nbProcess}")
+
     global next_move
     next_move = None
     random.shuffle(valid_moves)
-    find_move_negamax_alpha_beta(gs, valid_moves, depth_game, -checkmate_score, checkmate_score, 1 if gs.white_to_move else -1)
-    return_queue.put(next_move)
+    score = find_move_negamax_alpha_beta(gs, valid_moves, depth_game, -checkmate_score, checkmate_score, 1 if gs.white_to_move else -1)
+
+    print(f"Process {nbProcess} ended, best move : {next_move} with {abs(score)}")
+
+    return_queue.put((next_move, abs(score)))
 
 def find_move_min_max(gs, valid_moves, depth, white_to_move):
     global next_move

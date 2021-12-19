@@ -42,12 +42,21 @@ def main():
     player_two = False # black player, set False for AI, True for human
     ai_thinking = False
     move_finder_process = None
+
+    move_finder_process2 = None
+    move_finder_process3 = None
+    move_finder_process4 = None
+
     move_undone = False
 
     while running:
         human_turn = (gs.white_to_move and player_one) or (not gs.white_to_move and player_two)
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
+                move_finder_process.kill()
+                move_finder_process2.kill()
+                move_finder_process3.kill()
+                move_finder_process4.kill()
                 running = False
             # mouse handler
             elif e.type == pygame.MOUSEBUTTONDOWN:
@@ -82,6 +91,11 @@ def main():
                     game_over = False
                     if ai_thinking:
                         move_finder_process.terminate()
+
+                        move_finder_process2.terminate()
+                        move_finder_process3.terminate()
+                        move_finder_process4.terminate()
+
                         ai_thinking = False
                     move_undone = True
 
@@ -95,6 +109,11 @@ def main():
                     game_over = False
                     if ai_thinking:
                         move_finder_process.terminate()
+
+                        move_finder_process2.terminate()
+                        move_finder_process3.terminate()
+                        move_finder_process4.terminate()
+
                         ai_thinking = False
                     move_undone = True
 
@@ -103,14 +122,52 @@ def main():
             if not ai_thinking:
                 ai_thinking = True
                 return_queue = Queue()
-                move_finder_process = Process(target=ChessAI.find_best_move, args=(gs, valid_moves, return_queue))
-                move_finder_process.start()
 
-            if not move_finder_process.is_alive():
+                valid_moves_lenght = len(valid_moves)
+
+                valid_moves1 = valid_moves[:valid_moves_lenght // 2]
+                valid_moves2 = valid_moves[valid_moves_lenght // 2:]
+
+                valid_moves_lenght = len(valid_moves1)
+
+                valid_moves1, valid_moves3 = valid_moves1[:valid_moves_lenght // 2], valid_moves1[valid_moves_lenght // 2:]
+
+                valid_moves_lenght = len(valid_moves2)
+
+                valid_moves2, valid_moves4 = valid_moves2[:valid_moves_lenght // 2], valid_moves2[valid_moves_lenght // 2:]
+
+                print("Make Process")
+
+                # valid_moves1 = valid_moves1[:1]
+
+                move_finder_process = Process(target=ChessAI.find_best_move, args=(gs, valid_moves1, return_queue, 1))
+                move_finder_process2 = Process(target=ChessAI.find_best_move, args=(gs, valid_moves2, return_queue, 2))
+                move_finder_process3 = Process(target=ChessAI.find_best_move, args=(gs, valid_moves3, return_queue, 3))
+                move_finder_process4 = Process(target=ChessAI.find_best_move, args=(gs, valid_moves4, return_queue, 4))
+
+                move_finder_process.start()
+                move_finder_process2.start()
+                move_finder_process3.start()
+                move_finder_process4.start()
+
+            if not move_finder_process.is_alive() and not move_finder_process2.is_alive() and not move_finder_process3.is_alive() and not move_finder_process4.is_alive():
                 ai_move = return_queue.get()
+                ai_move2 = return_queue.get()
+                ai_move3 = return_queue.get()
+                ai_move4 = return_queue.get()
+
                 if ai_move == None:
                     ai_move = ChessAI.find_random_move(valid_moves)
-                gs.make_move(ai_move)
+
+                best_score = max(ai_move[1], ai_move2[1], ai_move3[1], ai_move4[1])
+
+                for score in [ai_move, ai_move2, ai_move3, ai_move4]:
+                    if score[1] == best_score:
+                        best_move = score[0]
+
+                print(best_move)
+
+                gs.make_move(best_move)
                 move_made = True
                 animate = True # ai animate
                 ai_thinking = False
