@@ -86,7 +86,7 @@ piece_position_scores = {
 
 checkmate_score = 1000
 stalemate_score = 0
-depth_game = 3
+depth_game = 0
 
 '''
 picks and return a random move
@@ -185,7 +185,7 @@ def score_board(gs):
         else:
             return checkmate_score # white wins
     elif gs.stale_mate:
-        return stale_mate
+        return stalemate_score
 
     score = 0
     for row in range(len(gs.board)):

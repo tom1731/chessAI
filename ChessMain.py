@@ -190,23 +190,36 @@ def draw_move_log(screen, gs, font):
     move_log = gs.move_log
     move_texts = []
     for i in range(0, len(move_log), 2):
-        move_string = str(i // 2 + 1) + '. ' + str(move_log[i]) + ' '
-        if i + 1 < len(move_log):
-            move_string += str(move_log[i+1]) + '    '
+        move_string = str(i // 2 + 1) + '. ' + str(move_log[i]) + '  '
         move_texts.append(move_string)
-    moves_per_row = 3
-    padding = 5
-    line_spacing = 2
-    text_y = padding
-    for i in range(0, len(move_texts), moves_per_row):
+        if i + 1 < len(move_log):
+            move_string = str(move_log[i+1])
+            move_texts.append(move_string)
+    line_spacing = 5
+    text_y = 5
+    for i in range(len(move_texts)):
         text = ''
-        for j in range(moves_per_row):
-            if i + j < len(move_texts):
-                text += move_texts[i+j]
+        if i < 50:
+            padding = 5
+        else:
+            padding = 160
+        if i == 50:
+            text_y = 5
+        if i < len(move_texts):
+            text += move_texts[i]
+
         text_object = font.render(text, True, pygame.Color('White'))
+
+        if i > 0 and i != 50:
+            if i % 2 == 0:
+                text_y += text_object.get_height() + line_spacing
+            else:
+                padding += 75
+
         text_location = move_log_rect.move(padding, text_y)
         screen.blit(text_object, text_location)
-        text_y += text_object.get_height() + line_spacing
+
+
 
 '''
 Animating a move
