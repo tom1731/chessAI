@@ -55,11 +55,11 @@ rook_scores = [
 
 white_pawn_scores = [
     [8, 8, 8, 8, 8, 8, 8, 8],
-    [8, 8, 8, 8, 8, 8, 8, 8],
-    [5, 6, 6, 7, 7, 6, 6, 5],
-    [2, 3, 3, 5, 5, 3, 3, 2],
+    [5, 5, 5, 5, 5, 5, 5, 5],
+    [3, 4, 4, 5, 5, 4, 4, 3],
+    [2, 3, 3, 4, 4, 3, 3, 2],
     [1, 2, 3, 4, 4, 3, 2, 1],
-    [1, 1, 2, 3, 3, 2, 1, 1],
+    [1, 1, 2, 2, 2, 2, 1, 1],
     [1, 1, 1, 0, 0, 1, 1, 1],
     [0, 0, 0, 0, 0, 0, 0, 0]
     ]
@@ -67,11 +67,11 @@ white_pawn_scores = [
 black_pawn_scores = [
     [0, 0, 0, 0, 0, 0, 0, 0],
     [1, 1, 1, 0, 0, 1, 1, 1],
-    [1, 1, 2, 3, 3, 2, 1, 1],
+    [1, 1, 2, 2, 2, 2, 1, 1],
     [1, 2, 3, 4, 4, 3, 2, 1],
-    [2, 3, 3, 5, 5, 3, 3, 2],
-    [5, 6, 6, 7, 7, 6, 6, 5],
-    [8, 8, 8, 8, 8, 8, 8, 8],
+    [2, 3, 3, 4, 4, 3, 3, 2],
+    [3, 4, 4, 5, 5, 4, 4, 3],
+    [5, 5, 5, 5, 5, 5, 5, 5],
     [8, 8, 8, 8, 8, 8, 8, 8]
     ]
 
@@ -86,7 +86,7 @@ piece_position_scores = {
 
 checkmate_score = 1000
 stalemate_score = 0
-depth_game = 3
+depth_game = 2
 
 '''
 picks and return a random move
@@ -185,7 +185,7 @@ def score_board(gs):
         else:
             return checkmate_score # white wins
     elif gs.stale_mate:
-        return stale_mate
+        return stalemate_score
 
     score = 0
     for row in range(len(gs.board)):

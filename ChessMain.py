@@ -17,7 +17,7 @@ Initialize a global dictionnary of images.
 def load_images():
     pieces = ['wp', 'wR', 'wN', 'wB', 'wQ', 'wK', 'bp', 'bR', 'bN', 'bB', 'bQ', 'bK']
     for piece in pieces:
-        images[piece] = pygame.transform.scale(pygame.image.load('images/' + piece + '.png'), (square_size, square_size))
+        images[piece] = pygame.transform.scale(pygame.image.load('images/' + piece + '.png').convert_alpha(), (square_size, square_size))
 
 '''
 The main driver for our code. This will handle user input and updating the graphics.
@@ -190,23 +190,36 @@ def draw_move_log(screen, gs, font):
     move_log = gs.move_log
     move_texts = []
     for i in range(0, len(move_log), 2):
-        move_string = str(i // 2 + 1) + '. ' + str(move_log[i]) + ' '
-        if i + 1 < len(move_log):
-            move_string += str(move_log[i+1]) + '    '
+        move_string = str(i // 2 + 1) + '. ' + str(move_log[i]) + '  '
         move_texts.append(move_string)
-    moves_per_row = 3
-    padding = 5
-    line_spacing = 2
-    text_y = padding
-    for i in range(0, len(move_texts), moves_per_row):
+        if i + 1 < len(move_log):
+            move_string = str(move_log[i+1])
+            move_texts.append(move_string)
+    line_spacing = 5
+    text_y = 5
+    for i in range(len(move_texts)):
         text = ''
-        for j in range(moves_per_row):
-            if i + j < len(move_texts):
-                text += move_texts[i+j]
+        if i < 50:
+            padding = 5
+        else:
+            padding = 160
+        if i == 50:
+            text_y = 5
+        if i < len(move_texts):
+            text += move_texts[i]
+
         text_object = font.render(text, True, pygame.Color('White'))
+
+        if i > 0 and i != 50:
+            if i % 2 == 0:
+                text_y += text_object.get_height() + line_spacing
+            else:
+                padding += 75
+
         text_location = move_log_rect.move(padding, text_y)
         screen.blit(text_object, text_location)
-        text_y += text_object.get_height() + line_spacing
+
+
 
 '''
 Animating a move
@@ -239,7 +252,7 @@ def animate_move(move, screen, board, clock):
 def draw_end_game_text(screen, text):
     font = pygame.font.SysFont('Helvitca', 64, True, False)
     text_object = font.render(text, 0, pygame.Color('White'))
-    text_location = pygame.Rect(0, 0, width, height).move(width/2 - text_object.get_width()/2, height/2 - text_object.get_height()/2)
+    text_location = pygame.Rect(0, 0, board_width, board_height).move(board_width/2 - text_object.get_width()/2, board_height/2 - text_object.get_height()/2)
     screen.blit(text_object, text_location)
     text_object = font.render(text, 0, pygame.Color('Black'))
     screen.blit(text_object, text_location.move(2, 2))
