@@ -1,5 +1,6 @@
 from multiprocessing import Process, Queue, cpu_count
 import ChessAI
+import copy
 
 class Threads:
     def __init__(self):
@@ -32,7 +33,7 @@ class Threads:
 
         # Init process
         for i, process in enumerate(self.process):
-            process = Process(target=ChessAI.find_best_move, args=(gs, valid_moves_list[i], self.return_queue, i))
+            process = Process(target=ChessAI.find_best_move, args=(copy.deepcopy(gs), valid_moves_list[i], self.return_queue, i))
             self.process[i] = process
         # Start process
         for process in self.process:

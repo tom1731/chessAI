@@ -98,7 +98,6 @@ def find_random_move(valid_moves):
 helper methode to make first recursive call
 '''
 def find_best_move(gs, valid_moves, return_queue, nbProcess):
-
     print(f"Process {nbProcess}")
 
     global next_move
@@ -178,7 +177,7 @@ def find_move_negamax_alpha_beta(gs, valid_moves, depth, alpha, beta, turn_multi
             alpha = max_score
         if alpha >= beta:
             break
-
+        
     return max_score
 
 '''
