@@ -86,7 +86,7 @@ piece_position_scores = {
 
 checkmate_score = 1000
 stalemate_score = 0
-depth_game = 0
+depth_game = 2
 
 '''
 picks and return a random move
