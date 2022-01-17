@@ -149,7 +149,7 @@ Draw the square on the board.
 def draw_board(screen, font):
     global colors
     colors = [pygame.Color('white'), pygame.Color('gray')]
-    text_letter = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+    text_letter = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
     text_number = ['8', '7', '6', '5', '4', '3', '2', '1']
 
     for row in range(dimension):
@@ -159,7 +159,7 @@ def draw_board(screen, font):
             square_rect
 
             if row == 7:
-                text_location = square_rect.move(53, 50)
+                text_location = square_rect.move(53, 48)
                 text_object = font.render(text_letter[col], True, pygame.Color('Black'))
                 screen.blit(text_object, text_location)
 
