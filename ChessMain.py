@@ -117,7 +117,8 @@ def main():
 
         if move_made:
             if animate:
-                animate_move(gs.move_log[-1], screen, gs.board, clock)
+                animate_move(gs.move_log[-1], screen,
+                             gs.board, clock, move_log_font)
             valid_moves = gs.get_valid_moves()
             move_made = False
             animate = False
@@ -137,7 +138,7 @@ def main():
 Responsible for all the graphics within a current game state.
 '''
 def draw_game_state(screen, gs, valid_moves, square_selected, move_log_font):
-    draw_board(screen)
+    draw_board(screen, move_log_font)
     highlight_squares(screen, gs, valid_moves, square_selected)
     draw_pieces(screen, gs.board)
     draw_move_log(screen, gs, move_log_font)
@@ -145,13 +146,27 @@ def draw_game_state(screen, gs, valid_moves, square_selected, move_log_font):
 '''
 Draw the square on the board.
 '''
-def draw_board(screen):
+def draw_board(screen, font):
     global colors
     colors = [pygame.Color('white'), pygame.Color('gray')]
+    text_letter = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+    text_number = ['8', '7', '6', '5', '4', '3', '2', '1']
+
     for row in range(dimension):
         for col in range(dimension):
             color = colors[((row + col) % 2)]
-            pygame.draw.rect(screen, color, pygame.Rect(col*square_size, row*square_size, square_size, square_size))
+            square_rect = pygame.draw.rect(screen, color, pygame.Rect(col*square_size, row*square_size, square_size, square_size))
+            square_rect
+
+            if row == 7:
+                text_location = square_rect.move(53, 50)
+                text_object = font.render(text_letter[col], True, pygame.Color('Black'))
+                screen.blit(text_object, text_location)
+
+            if col == 0:
+                text_location = square_rect.move(2, 2)
+                text_object = font.render(text_number[row], True, pygame.Color('Black'))
+                screen.blit(text_object, text_location)
 
 '''
 Highlight sqaure selected and moves for piece selected
@@ -224,7 +239,9 @@ def draw_move_log(screen, gs, font):
 '''
 Animating a move
 '''
-def animate_move(move, screen, board, clock):
+
+
+def animate_move(move, screen, board, clock, move_log_font):
     global colors
     coords = [] # list of coords that the animation will move through
     delta_row = move.end_row - move.start_row
@@ -233,7 +250,7 @@ def animate_move(move, screen, board, clock):
     frame_count = (abs(delta_row) + abs(delta_col)) * frames_per_square
     for frame in range(frame_count + 1):
         row, col = (move.start_row + delta_row*frame/frame_count, move.start_col + delta_col*frame/frame_count)
-        draw_board(screen)
+        draw_board(screen, move_log_font)
         draw_pieces(screen, board)
         # erase the piece moved from its ending square
         color = colors[(move.end_row + move.end_col) % 2]
