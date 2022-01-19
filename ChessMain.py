@@ -11,18 +11,14 @@ square_size = board_height // dimension
 max_fps = 15
 images = {}
 
-'''
-Initialize a global dictionnary of images.
-'''
-def load_images():
-    pieces = ['wp', 'wR', 'wN', 'wB', 'wQ', 'wK', 'bp', 'bR', 'bN', 'bB', 'bQ', 'bK']
-    for piece in pieces:
-        images[piece] = pygame.transform.scale(pygame.image.load('images/' + piece + '.png').convert_alpha(), (square_size, square_size))
 
 '''
 The main driver for our code. This will handle user input and updating the graphics.
 '''
 def main():
+    player_one, player_two = player()
+    if player_one == False or player_two == False:
+        ChessAI.depth_game = int(input('Choose a depth for IA: '))
     pygame.init()
     screen = pygame.display.set_mode((board_width + move_log_panel_width, board_height))
     clock = pygame.time.Clock()
@@ -38,8 +34,6 @@ def main():
     square_selected = ()
     player_clicks = []
     game_over = False
-    player_one = False # white player, set False for AI, True for human
-    player_two = False # black player, set False for AI, True for human
     ai_thinking = False
     move_finder_process = None
     move_undone = False
@@ -122,7 +116,7 @@ def main():
             game_state_log_temp.append(gs.white_to_move)
             game_state_log_temp.append(gs.current_castling_right)
             gs.game_state_log.append(game_state_log_temp)
-            print(gs.game_state_log)
+            # print(gs.game_state_log)
 
             if animate:
                 animate_move(gs.move_log[-1], screen,
@@ -142,6 +136,49 @@ def main():
         clock.tick(max_fps)
         pygame.display.flip()
 
+
+'''
+Ask to user how many player and side
+'''
+def player():
+    while True:
+        player = input('How many player ? (0, 1, 2): ')
+        if player == '0':
+            player_one = False  # white player, set False for AI, True for human
+            player_two = False  # black player, set False for AI, True for human
+            break
+        elif player == '1':
+            side = input('Choose your side. (w, b): ')
+            if side == 'w':
+                player_one = True
+                player_two = False
+                break
+            elif side == 'b':
+                player_one = False
+                player_two = True
+                break
+            else:
+                continue
+        elif player == '2':
+            player_one = True
+            player_two = True
+            break
+        else:
+            continue
+    return player_one, player_two
+
+
+'''
+Initialize a global dictionnary of images.
+'''
+def load_images():
+    pieces = ['wp', 'wR', 'wN', 'wB', 'wQ',
+              'wK', 'bp', 'bR', 'bN', 'bB', 'bQ', 'bK']
+    for piece in pieces:
+        images[piece] = pygame.transform.scale(pygame.image.load(
+            'images/' + piece + '.png').convert_alpha(), (square_size, square_size))
+
+
 '''
 Responsible for all the graphics within a current game state.
 '''
@@ -150,6 +187,7 @@ def draw_game_state(screen, gs, valid_moves, square_selected, move_log_font):
     highlight_squares(screen, gs, valid_moves, square_selected)
     draw_pieces(screen, gs.board)
     draw_move_log(screen, gs, move_log_font)
+
 
 '''
 Draw the square on the board.
@@ -176,6 +214,7 @@ def draw_board(screen, font):
                 text_object = font.render(text_number[row], True, pygame.Color('Black'))
                 screen.blit(text_object, text_location)
 
+
 '''
 Highlight sqaure selected and moves for piece selected
 '''
@@ -194,6 +233,7 @@ def highlight_squares(screen, gs, valid_moves, square_selected):
                 if move.start_row == row and move.start_col == col:
                     screen.blit(surf, (move.end_col*square_size, move.end_row*square_size))
 
+
 '''
 Draw the pieces on the board using the current GameState.board.
 '''
@@ -203,6 +243,7 @@ def draw_pieces(screen, board):
             piece = board[row][col]
             if piece != '--':
                 screen.blit(images[piece], pygame.Rect(col*square_size, row*square_size, square_size, square_size))
+
 
 '''
 draws the move log
@@ -243,12 +284,9 @@ def draw_move_log(screen, gs, font):
         screen.blit(text_object, text_location)
 
 
-
 '''
 Animating a move
 '''
-
-
 def animate_move(move, screen, board, clock, move_log_font):
     global colors
     coords = [] # list of coords that the animation will move through
@@ -273,6 +311,7 @@ def animate_move(move, screen, board, clock, move_log_font):
         screen.blit(images[move.piece_moved], pygame.Rect(col*square_size, row*square_size, square_size, square_size))
         pygame.display.flip()
         clock.tick(60)
+
 
 def draw_end_game_text(screen, text):
     font = pygame.font.SysFont('Helvitca', 64, True, False)

@@ -86,13 +86,16 @@ piece_position_scores = {
 
 checkmate_score = 1000
 stalemate_score = 0
-depth_game = 2
+
+depth_game = 0
+
 
 '''
 picks and return a random move
 '''
 def find_random_move(valid_moves):
     return valid_moves[random.randint(0, len(valid_moves)-1)]
+
 
 '''
 helper methode to make first recursive call
@@ -135,6 +138,7 @@ def find_move_min_max(gs, valid_moves, depth, white_to_move):
             gs.undo_move()
         return min_score
 
+
 def find_move_negamax(gs, valid_moves, depth, turn_multiplayer):
     global next_move
     if depth == 0:
@@ -151,6 +155,7 @@ def find_move_negamax(gs, valid_moves, depth, turn_multiplayer):
                 next_move = move
         gs.undo_move()
     return max_score
+
 
 def find_move_negamax_alpha_beta(gs, valid_moves, depth, alpha, beta, turn_multiplayer):
     global next_move
@@ -174,6 +179,7 @@ def find_move_negamax_alpha_beta(gs, valid_moves, depth, alpha, beta, turn_multi
             break
 
     return max_score
+
 
 '''
 A positive score is good for white, negative is good for black
@@ -205,6 +211,7 @@ def score_board(gs):
                     score -= piece_score[square[1]] + piece_position_score * 0.1
 
     return score
+
 
 '''
 score the board based on material
