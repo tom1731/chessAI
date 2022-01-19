@@ -184,7 +184,7 @@ def score_board(gs):
             return -checkmate_score # black wins
         else:
             return checkmate_score # white wins
-    elif gs.stale_mate:
+    elif gs.draw:
         return stalemate_score
 
     score = 0

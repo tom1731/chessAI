@@ -1,7 +1,7 @@
+reset game bug fix
 real chess notation
 deeplearning AI
 online game
 highlight last move made
-numpy array
-stalemate rules (3 times same move)
+draw rules
 menu to select AI/Human

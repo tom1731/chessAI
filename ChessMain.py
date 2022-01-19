@@ -116,6 +116,14 @@ def main():
                 ai_thinking = False
 
         if move_made:
+
+            game_state_log_temp = []
+            game_state_log_temp.append(gs.board)
+            game_state_log_temp.append(gs.white_to_move)
+            game_state_log_temp.append(gs.current_castling_right)
+            gs.game_state_log.append(game_state_log_temp)
+            print(gs.game_state_log)
+
             if animate:
                 animate_move(gs.move_log[-1], screen,
                              gs.board, clock, move_log_font)
@@ -126,9 +134,9 @@ def main():
 
         draw_game_state(screen, gs, valid_moves, square_selected, move_log_font)
 
-        if gs.check_mate or gs.stale_mate:
+        if gs.check_mate or gs.draw:
             game_over = True
-            text = 'Stalemate' if gs.stale_mate else 'Black wins' if gs.white_to_move else 'White wins'
+            text = 'Draw' if gs.draw else 'Black wins' if gs.white_to_move else 'White wins'
             draw_end_game_text(screen, text)
 
         clock.tick(max_fps)

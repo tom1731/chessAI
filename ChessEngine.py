@@ -20,14 +20,14 @@ class GameState():
             'B': self.get_bishop_moves,
             'Q': self.get_queen_moves,
             'K': self.get_king_moves
-        }
+            }
 
         self.white_to_move = True
         self.move_log = []
         self.white_king_location = (7, 4)
         self.black_king_location = (0, 4)
         self.check_mate = False
-        self.stale_mate = False
+        self.draw = False
         self.enpassant_possible = () # coordinates for the square where en passant capture is possible
         self.enpassant_possible_log = [self.enpassant_possible]
         self.current_castling_right = CastleRights(True, True, True, True)
@@ -35,6 +35,7 @@ class GameState():
                                                self.current_castling_right.bks,
                                                self.current_castling_right.wqs,
                                                self.current_castling_right.bqs)]
+        self.game_state_log = []
 
 
     '''
@@ -114,7 +115,7 @@ class GameState():
                     self.board[move.end_row][move.end_col+1] = '--'
 
             self.check_mate = False
-            self.stale_mate = False
+            self.draw = False
 
     '''
     update the castle rights given the move
@@ -175,11 +176,8 @@ class GameState():
                 moves.remove(moves[i]) # 5. if they do attack your king, not a valid move
             self.white_to_move = not self.white_to_move
             self.undo_move()
-        if len(moves) == 0:
-            if self.in_check:
-                self.check_mate = True
-            else:
-                self.stale_mate = True
+
+        self.end_game(moves)
 
         if self.white_to_move:
             self.get_castle_moves(self.white_king_location[0], self.white_king_location[1], moves)
@@ -210,6 +208,16 @@ class GameState():
             if move.end_row == row and move.end_col == col: # square is under attack
                 return True
         return False
+
+    def end_game(self, moves):
+        if len(moves) == 0:
+            if self.in_check:
+                self.check_mate = True
+            else:
+                self.draw = True
+
+
+
 
     '''
     All moves without considering checks
