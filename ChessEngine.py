@@ -37,6 +37,7 @@ class GameState():
                                                self.current_castling_right.bqs)]
         self.game_state_log = [(str(self.board),
                                 self.white_to_move,
+                                self.enpassant_possible,
                                 self.current_castling_right.wks,
                                 self.current_castling_right.bks,
                                 self.current_castling_right.wqs,

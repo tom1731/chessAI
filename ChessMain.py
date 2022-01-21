@@ -110,9 +110,9 @@ def main():
                 ai_thinking = False
 
         if move_made:
-
             gs.game_state_log.append((str(gs.board),
                                       gs.white_to_move,
+                                      gs.enpassant_possible,
                                       gs.current_castling_right.wks,
                                       gs.current_castling_right.bks,
                                       gs.current_castling_right.wqs,
