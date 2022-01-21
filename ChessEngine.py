@@ -35,7 +35,12 @@ class GameState():
                                                self.current_castling_right.bks,
                                                self.current_castling_right.wqs,
                                                self.current_castling_right.bqs)]
-        self.game_state_log = []
+        self.game_state_log = [(str(self.board),
+                                self.white_to_move,
+                                self.current_castling_right.wks,
+                                self.current_castling_right.bks,
+                                self.current_castling_right.wqs,
+                                self.current_castling_right.bqs)]
 
 
     '''
@@ -221,6 +226,10 @@ class GameState():
             if self.in_check:
                 self.check_mate = True
             else:
+                self.draw = True
+
+        for i in self.game_state_log:
+            if self.game_state_log.count(i) == 3:
                 self.draw = True
 
 

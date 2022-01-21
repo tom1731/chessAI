@@ -4,4 +4,4 @@ deeplearning AI
 online game
 highlight last move made
 draw rules
-menu to select AI/Human
+menu

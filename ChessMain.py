@@ -18,7 +18,7 @@ The main driver for our code. This will handle user input and updating the graph
 def main():
     player_one, player_two = player()
     if player_one == False or player_two == False:
-        ChessAI.depth_game = int(input('Choose a depth for IA: '))
+        ChessAI.depth_game = int(input('Choose a depth for AI: '))
     pygame.init()
     screen = pygame.display.set_mode((board_width + move_log_panel_width, board_height))
     clock = pygame.time.Clock()
@@ -106,17 +106,17 @@ def main():
                     ai_move = ChessAI.find_random_move(valid_moves)
                 gs.make_move(ai_move)
                 move_made = True
-                animate = True # ai animate
+                animate = False # ai animate
                 ai_thinking = False
 
         if move_made:
 
-            game_state_log_temp = []
-            game_state_log_temp.append(gs.board)
-            game_state_log_temp.append(gs.white_to_move)
-            game_state_log_temp.append(gs.current_castling_right)
-            gs.game_state_log.append(game_state_log_temp)
-            # print(gs.game_state_log)
+            gs.game_state_log.append((str(gs.board),
+                                      gs.white_to_move,
+                                      gs.current_castling_right.wks,
+                                      gs.current_castling_right.bks,
+                                      gs.current_castling_right.wqs,
+                                      gs.current_castling_right.bqs))
 
             if animate:
                 animate_move(gs.move_log[-1], screen,
