@@ -1,3 +1,5 @@
+from tabnanny import check
+from xml.dom.minidom import Notation
 import pygame
 import ChessEngine
 import ChessAI
@@ -57,7 +59,6 @@ def main():
                         player_clicks.append(square_selected)
                     if len(player_clicks) == 2 and human_turn:
                         move = ChessEngine.Move(player_clicks[0], player_clicks[1], gs.board)
-                        print(move.get_chess_notation())
                         for i in range(len(valid_moves)):
                             if move == valid_moves[i]:
                                 gs.make_move(valid_moves[i])
@@ -71,6 +72,7 @@ def main():
             elif e.type == pygame.KEYDOWN:
                 if e.key == pygame.K_z: # undo when 'z' is pressed
                     gs.undo_move()
+                    gs.in_check_log = gs.in_check_log[:-2 or None]
                     move_made = True
                     animate = False
                     game_over = False
@@ -110,6 +112,8 @@ def main():
                 ai_thinking = False
 
         if move_made:
+            gs.in_check_log.append(gs.in_check())
+
             gs.game_state_log.append((str(gs.board),
                                       gs.white_to_move,
                                       gs.enpassant_possible,
@@ -252,12 +256,18 @@ def draw_move_log(screen, gs, font):
     move_log_rect = pygame.Rect(board_width, 0, move_log_panel_width, move_log_panel_height)
     pygame.draw.rect(screen, pygame.Color('black'), move_log_rect)
     move_log = gs.move_log
+    check_notation = []
+    for i in gs.in_check_log:
+        if i:
+            check_notation.append('+')
+        else:
+            check_notation.append('')
     move_texts = []
     for i in range(0, len(move_log), 2):
-        move_string = str(i // 2 + 1) + '. ' + str(move_log[i]) + '  '
+        move_string = str(i // 2 + 1) + '. ' + str(move_log[i]) + check_notation[i]
         move_texts.append(move_string)
         if i + 1 < len(move_log):
-            move_string = str(move_log[i+1])
+            move_string = str(move_log[i+1]) + check_notation[i+1]
             move_texts.append(move_string)
     line_spacing = 5
     text_y = 5
@@ -289,7 +299,6 @@ Animating a move
 '''
 def animate_move(move, screen, board, clock, move_log_font):
     global colors
-    coords = [] # list of coords that the animation will move through
     delta_row = move.end_row - move.start_row
     delta_col = move.end_col - move.start_col
     frames_per_square = 10

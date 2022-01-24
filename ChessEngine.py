@@ -26,6 +26,7 @@ class GameState():
         self.move_log = []
         self.white_king_location = (7, 4)
         self.black_king_location = (0, 4)
+        self.in_check_log = []
         self.check_mate = False
         self.draw = False
         self.enpassant_possible = () # coordinates for the square where en passant capture is possible
