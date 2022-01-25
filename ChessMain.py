@@ -121,7 +121,6 @@ def main():
 
         if move_made:
             gs.in_check_log.append(gs.in_check())
-
             gs.game_state_log.append((str(gs.board),
                                       gs.white_to_move,
                                       gs.enpassant_possible,
@@ -137,8 +136,6 @@ def main():
             move_made = False
             animate = False
             move_undone = False
-            print(gs.enpassant_possible)
-
 
         draw_game_state(screen, gs, valid_moves, square_selected, move_log_font)
 
@@ -270,6 +267,8 @@ def draw_move_log(screen, gs, font):
     for i in gs.in_check_log:
         if i:
             check_notation.append('+')
+            if gs.check_mate:
+                check_notation[-1] = '#'
         else:
             check_notation.append('')
     move_texts = []
