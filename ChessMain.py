@@ -71,8 +71,16 @@ def main():
             # key handler
             elif e.type == pygame.KEYDOWN:
                 if e.key == pygame.K_z: # undo when 'z' is pressed
-                    gs.undo_move()
-                    gs.in_check_log = gs.in_check_log[:-2 or None]
+                    if len(gs.move_log) > 1:
+                        gs.undo_move()
+                        gs.game_state_log.pop()
+                        gs.game_state_log.pop()
+                        gs.in_check_log.pop()
+                        gs.in_check_log.pop()
+                    else:
+                        gs = ChessEngine.GameState()
+                    square_selected = ()
+                    player_clicks = []
                     move_made = True
                     animate = False
                     game_over = False
@@ -129,6 +137,8 @@ def main():
             move_made = False
             animate = False
             move_undone = False
+            print(gs.enpassant_possible)
+
 
         draw_game_state(screen, gs, valid_moves, square_selected, move_log_font)
 

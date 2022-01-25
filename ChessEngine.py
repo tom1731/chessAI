@@ -67,8 +67,10 @@ class GameState():
         if move.is_enpassant_move:
             self.board[move.start_row][move.end_col] = '--'
         # update enpassant_possible variable
-        if move.piece_moved[1] == 'p' and abs(move.start_row - move.end_row) == 2:
+        if move.end_col-1 >= 0 and move.piece_moved[1] == 'p' and abs(move.start_row - move.end_row) == 2 and self.board[move.end_row][move.end_col-1][1] == 'p':
             self.enpassant_possible = ((move.start_row + move.end_row) // 2, move.end_col)
+        elif move.end_col+1 <= 7 and move.piece_moved[1] == 'p' and abs(move.start_row - move.end_row) == 2 and self.board[move.end_row][move.end_col+1][1] == 'p':
+                self.enpassant_possible = ((move.start_row + move.end_row) // 2, move.end_col)
         else:
             self.enpassant_possible = ()
 
