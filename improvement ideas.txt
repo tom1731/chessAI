@@ -1,7 +1,5 @@
-reset game bug fix
-real chess notation
-deeplearning AI
-online game
 highlight last move made
-draw rules
+
+online game
+deeplearning AI
 menu

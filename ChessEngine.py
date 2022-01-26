@@ -29,6 +29,7 @@ class GameState():
         self.in_check_log = []
         self.check_mate = False
         self.draw = False
+        self.end_text = ''
         self.enpassant_possible = () # coordinates for the square where en passant capture is possible
         self.enpassant_possible_log = [self.enpassant_possible]
         self.current_castling_right = CastleRights(True, True, True, True)
@@ -43,6 +44,8 @@ class GameState():
                                 self.current_castling_right.bks,
                                 self.current_castling_right.wqs,
                                 self.current_castling_right.bqs)]
+        self.count_move = 0
+        self.count_move_log = []
 
 
     '''
@@ -92,6 +95,25 @@ class GameState():
                                                    self.current_castling_right.wqs,
                                                    self.current_castling_right.bqs))
 
+        # update game_state_log
+        self.game_state_log.append((str(self.board),
+                                  self.white_to_move,
+                                  self.enpassant_possible,
+                                  self.current_castling_right.wks,
+                                  self.current_castling_right.bks,
+                                  self.current_castling_right.wqs,
+                                  self.current_castling_right.bqs))
+
+        # update in_check_log
+        self.in_check_log.append(self.in_check())
+
+        # 50 move rule
+        if move.piece_moved[1] != 'p' and move.piece_captured == '--':
+            self.count_move += 1/2
+        else:
+            self.count_move = 0
+        self.count_move_log.append(self.count_move)
+
 
     def undo_move(self):
         if len(self.move_log) != 0:
@@ -123,9 +145,75 @@ class GameState():
                 else: # queenside
                     self.board[move.end_row][move.end_col-2] = self.board[move.end_row][move.end_col+1]
                     self.board[move.end_row][move.end_col+1] = '--'
+            # undo game_state_log
+            self.game_state_log.pop()
+            # undo in_check_log
+            self.in_check_log.pop()
+            # undo 50 move rule
+            self.count_move_log.pop()
+            if len(self.count_move_log) > 0:
+                self.count_move = self.count_move_log[-1]
 
             self.check_mate = False
             self.draw = False
+
+
+    '''
+    Determine when the game end
+    '''
+    def end_game(self, moves):
+        # checkmate and stalemate
+        if len(moves) == 0:
+            if self.in_check:
+                self.check_mate = True
+                self.end_text = 'Black wins by Checkmate' if self.white_to_move else 'White wins by Checkmate'
+            else:
+                self.draw = True
+                self.end_text = 'Stalemate'
+
+        # 3 times repetitive rule
+        for i in self.game_state_log:
+            if self.game_state_log.count(i) == 3:
+                self.draw = True
+                self.end_text = 'Draw by threefold repetition rule'
+
+        # 50 moves rule
+        if self.count_move == 50:
+            self.draw = True
+            self.end_text = 'Draw by 50 moves rule'
+
+        # Insufficient material
+        unique, counts = np.unique(self.board, return_counts=True)
+        pieces_alive = dict(zip(unique, counts))
+        insufficient_material = False
+
+        if pieces_alive.keys() == {'--', 'wK', 'bK'}:
+            insufficient_material = True
+
+        if pieces_alive.keys() == {'--', 'wN', 'wK', 'bK'} and pieces_alive['wN'] <= 2:
+            insufficient_material = True
+        if pieces_alive.keys() == {'--', 'bN', 'wK', 'bK'} and pieces_alive['bN'] <= 2:
+            insufficient_material = True
+        if pieces_alive.keys() == {'--', 'wN', 'wK', 'bN', 'bK'} and pieces_alive['wN'] == 1 and pieces_alive['bN'] == 1:
+            insufficient_material = True
+
+        if pieces_alive.keys() == {'--', 'wB', 'wK', 'bK'} and pieces_alive['wB'] == 1:
+            insufficient_material = True
+        if pieces_alive.keys() == {'--', 'bB', 'wK', 'bK'} and pieces_alive['bB'] == 1:
+            insufficient_material = True
+        if pieces_alive.keys() == {'--', 'wB', 'wK', 'bB', 'bK'} and pieces_alive['wB'] == 1 and pieces_alive['bB'] == 1:
+            insufficient_material = True
+
+        if pieces_alive.keys() == {'--', 'wB', 'wK', 'bN', 'bK'} and pieces_alive['wB'] == 1 and pieces_alive['bN'] == 1:
+            insufficient_material = True
+
+        if pieces_alive.keys() == {'--', 'wN', 'wK', 'bB', 'bK'} and pieces_alive['wN'] == 1 and pieces_alive['bB'] == 1:
+            insufficient_material = True
+
+
+        if insufficient_material:
+            self.draw = True
+            self.end_text = 'Draw by insufficient material'
 
 
     '''
@@ -221,20 +309,6 @@ class GameState():
             if move.end_row == row and move.end_col == col: # square is under attack
                 return True
         return False
-
-    '''
-    Determine when the game end
-    '''
-    def end_game(self, moves):
-        if len(moves) == 0:
-            if self.in_check:
-                self.check_mate = True
-            else:
-                self.draw = True
-
-        for i in self.game_state_log:
-            if self.game_state_log.count(i) == 3:
-                self.draw = True
 
 
     '''

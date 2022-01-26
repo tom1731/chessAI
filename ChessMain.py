@@ -19,8 +19,19 @@ The main driver for our code. This will handle user input and updating the graph
 '''
 def main():
     player_one, player_two = player()
-    if player_one == False or player_two == False:
-        ChessAI.depth_game = int(input('Choose a depth for AI: '))
+    while True:
+        if player_one == False or player_two == False:
+            ChessAI.depth_game = input('Choose a depth for AI (max 3): ')
+            try:
+                ChessAI.depth_game = int(ChessAI.depth_game)
+                if ChessAI.depth_game <= 3:
+                    break
+                else:
+                    continue
+            except:
+                continue
+        else:
+            break
     pygame.init()
     screen = pygame.display.set_mode((board_width + move_log_panel_width, board_height))
     clock = pygame.time.Clock()
@@ -73,10 +84,6 @@ def main():
                 if e.key == pygame.K_z: # undo when 'z' is pressed
                     if len(gs.move_log) > 1:
                         gs.undo_move()
-                        gs.game_state_log.pop()
-                        gs.game_state_log.pop()
-                        gs.in_check_log.pop()
-                        gs.in_check_log.pop()
                     else:
                         gs = ChessEngine.GameState()
                     square_selected = ()
@@ -100,7 +107,6 @@ def main():
                     if ai_thinking:
                         move_finder_process.terminate()
                         ai_thinking = False
-                    move_undone = True
 
         # AI move finder
         if not game_over and not human_turn and not move_undone:
@@ -120,15 +126,6 @@ def main():
                 ai_thinking = False
 
         if move_made:
-            gs.in_check_log.append(gs.in_check())
-            gs.game_state_log.append((str(gs.board),
-                                      gs.white_to_move,
-                                      gs.enpassant_possible,
-                                      gs.current_castling_right.wks,
-                                      gs.current_castling_right.bks,
-                                      gs.current_castling_right.wqs,
-                                      gs.current_castling_right.bqs))
-
             if animate:
                 animate_move(gs.move_log[-1], screen,
                              gs.board, clock, move_log_font)
@@ -141,8 +138,7 @@ def main():
 
         if gs.check_mate or gs.draw:
             game_over = True
-            text = 'Draw' if gs.draw else 'Black wins' if gs.white_to_move else 'White wins'
-            draw_end_game_text(screen, text)
+            draw_end_game_text(screen, gs.end_text)
 
         clock.tick(max_fps)
         pygame.display.flip()
@@ -159,7 +155,7 @@ def player():
             player_two = False  # black player, set False for AI, True for human
             break
         elif player == '1':
-            side = input('Choose your side. (w, b): ')
+            side = input('Choose your side (w, b): ')
             if side == 'w':
                 player_one = True
                 player_two = False
@@ -332,11 +328,11 @@ def animate_move(move, screen, board, clock, move_log_font):
 
 
 def draw_end_game_text(screen, text):
-    font = pygame.font.SysFont('Helvitca', 64, True, False)
-    text_object = font.render(text, 0, pygame.Color('White'))
+    font = pygame.font.SysFont('Helvitca', 32, True, False)
+    text_object = font.render(text, 0, pygame.Color('white'))
     text_location = pygame.Rect(0, 0, board_width, board_height).move(board_width/2 - text_object.get_width()/2, board_height/2 - text_object.get_height()/2)
     screen.blit(text_object, text_location)
-    text_object = font.render(text, 0, pygame.Color('Black'))
+    text_object = font.render(text, 0, pygame.Color('blue'))
     screen.blit(text_object, text_location.move(2, 2))
 
 
