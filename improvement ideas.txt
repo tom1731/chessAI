@@ -1,7 +1,5 @@
-real chess notation
-deeplearning AI
-online game
 highlight last move made
-numpy array
-stalemate rules (3 times same move)
-menu to select AI/Human
+
+online game
+deeplearning AI
+menu
