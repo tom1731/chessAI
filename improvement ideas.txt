@@ -1,4 +1,3 @@
-highlight last move made
 
 online game
 deeplearning AI

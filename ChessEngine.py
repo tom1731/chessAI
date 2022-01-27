@@ -46,6 +46,8 @@ class GameState():
                                 self.current_castling_right.bqs)]
         self.count_move = 0
         self.count_move_log = []
+        self.white_castle_move = False
+        self.black_castle_move = False
 
 
     '''
@@ -81,6 +83,11 @@ class GameState():
 
         # castle move
         if move.is_castle_move:
+            if not self.white_to_move:
+                self.white_castle_move = True
+            else:
+                self.black_castle_move = True
+
             if move.end_col - move.start_col == 2: # kingside castle move
                 self.board[move.end_row][move.end_col-1] = self.board[move.end_row][move.end_col+1] # move the rook
                 self.board[move.end_row][move.end_col+1] = '--' # erase old rook
@@ -139,6 +146,10 @@ class GameState():
             self.current_castling_right = CastleRights(new_rights.wks, new_rights.bks, new_rights.wqs, new_rights.bqs)
             # undo castle move
             if move.is_castle_move:
+                if self.white_to_move:
+                    self.white_castle_move = False
+                else:
+                    self.black_castle_move = False
                 if move.end_col - move.start_col == 2: # kingside
                     self.board[move.end_row][move.end_col+1] = self.board[move.end_row][move.end_col-1]
                     self.board[move.end_row][move.end_col-1] = '--'
