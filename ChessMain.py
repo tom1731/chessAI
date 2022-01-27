@@ -281,12 +281,12 @@ def draw_move_log(screen, gs, font):
     for i in gs.in_check_log:
         if i:
             check_notation.append('+')
-            if gs.check_mate:
-                check_notation[-1] = '#'
         else:
             check_notation.append('')
     move_texts = []
     for i in range(0, len(move_log), 2):
+        if gs.check_mate:
+            check_notation[-1] = '#'
         move_string = str(i // 2 + 1) + '. ' + str(move_log[i]) + check_notation[i]
         move_texts.append(move_string)
         if i + 1 < len(move_log):
