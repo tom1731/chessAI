@@ -18,6 +18,7 @@ images = {}
 The main driver for our code. This will handle user input and updating the graphics.
 '''
 def main():
+    global human_turn
     player_one, player_two = player()
     while True:
         if player_one == False or player_two == False:
@@ -122,13 +123,12 @@ def main():
                     ai_move = ChessAI.find_random_move(valid_moves)
                 gs.make_move(ai_move)
                 move_made = True
-                animate = False # ai animate
+                animate = True # ai animate
                 ai_thinking = False
 
         if move_made:
             if animate:
-                animate_move(gs.move_log[-1], screen,
-                             gs.board, clock, move_log_font)
+                animate_move(gs.move_log[-1], screen, gs.board, clock, move_log_font)
             valid_moves = gs.get_valid_moves()
             move_made = False
             animate = False
@@ -226,14 +226,32 @@ def draw_board(screen, font):
 Highlight sqaure selected and moves for piece selected
 '''
 def highlight_squares(screen, gs, valid_moves, square_selected):
-    if square_selected != ():
+    surf = pygame.Surface((square_size, square_size))
+    surf.set_alpha(100)
+
+    # highlight previous move
+    if len(gs.move_log) > 0:
+        start_row = gs.move_log[-1].start_row
+        start_col = gs.move_log[-1].start_col
+        end_row = gs.move_log[-1].end_row
+        end_col = gs.move_log[-1].end_col
+
+        # highlight previous move start square
+        surf.fill(pygame.Color('yellow'))
+        screen.blit(surf, (start_col*square_size, start_row*square_size))
+
+        # highlight previous move end square
+        surf.fill(pygame.Color('yellow'))
+        screen.blit(surf, (end_col*square_size, end_row*square_size))
+
+    # highlight select square and valid moves
+    if square_selected != () and human_turn:
         row, col = square_selected
         if gs.board[row][col][0] == ('w' if gs.white_to_move else 'b'): # square_selected is a piece that can be moved
             # highlight selected square
-            surf = pygame.Surface((square_size, square_size))
-            surf.set_alpha(100)
             surf.fill(pygame.Color('green'))
             screen.blit(surf, (col*square_size, row*square_size))
+
             # highlight moves from that square
             surf.fill(pygame.Color('blue'))
             for move in valid_moves:
