@@ -1,5 +1,3 @@
-from tabnanny import check
-from xml.dom.minidom import Notation
 import pygame
 import ChessEngine
 import ChessAI
