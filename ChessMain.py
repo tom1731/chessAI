@@ -1,7 +1,7 @@
 import pygame
 import ChessEngine
 import ChessAI
-import menu
+import main
 from multiprocessing import Process, Queue
 
 board_width = board_height = 512
@@ -16,7 +16,7 @@ images = {}
 '''
 The main driver for our code. This will handle user input and updating the graphics.
 '''
-def main(player_one, player_two, depth_game):
+def main_game(player_one, player_two, depth_game):
     global human_turn
     player_one, player_two = player_one, player_two
     pygame.init()
@@ -72,7 +72,7 @@ def main(player_one, player_two, depth_game):
             elif e.type == pygame.KEYDOWN:
                 if e.key == pygame.K_ESCAPE:
                     running = False
-                    menu.main_menu()
+                    main.main_menu()
                 if e.key == pygame.K_z: # undo when 'z' is pressed
                     if len(gs.move_log) > 1:
                         gs.undo_move()
