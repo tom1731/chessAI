@@ -1,6 +1,8 @@
 # chessAI
 
-ChessAI is an ongoing personal project whose goal is to develop a chess game with python and the graphic library pygame and then play an AI.
+ChessAI is a personal project whose goal is to develop a chess game with python and the pygame graphic library then to play with an AI.
+Thanks a lot to Eddie Sharick for his youtube playlist who help me for the base of the game. Do not hesitate to go see it : https://www.youtube.com/watch?v=EnYui0e73Rs&list=PLBwF487qi8MGU81nDGaeNE1EnNEPYWKY_
+
 
 For try the game yourself follow the next instructions :
 - you must have python and pip installed
