@@ -1,6 +1,7 @@
 import pygame
 import ChessEngine
 import ChessAI
+import menu
 from multiprocessing import Process, Queue
 
 board_width = board_height = 512
@@ -15,22 +16,9 @@ images = {}
 '''
 The main driver for our code. This will handle user input and updating the graphics.
 '''
-def main():
+def main(player_one, player_two, depth_game):
     global human_turn
-    player_one, player_two = player()
-    while True:
-        if player_one == False or player_two == False:
-            ChessAI.depth_game = input('Choose a depth for AI (max 3): ')
-            try:
-                ChessAI.depth_game = int(ChessAI.depth_game)
-                if ChessAI.depth_game <= 3:
-                    break
-                else:
-                    continue
-            except:
-                continue
-        else:
-            break
+    player_one, player_two = player_one, player_two
     pygame.init()
     screen = pygame.display.set_mode((board_width + move_log_panel_width, board_height))
     clock = pygame.time.Clock()
@@ -55,6 +43,8 @@ def main():
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
                 running = False
+                pygame.quit()
+                quit()
             # mouse handler
             elif e.type == pygame.MOUSEBUTTONDOWN:
                 if not game_over:
@@ -80,6 +70,9 @@ def main():
                             player_clicks = [square_selected]
             # key handler
             elif e.type == pygame.KEYDOWN:
+                if e.key == pygame.K_ESCAPE:
+                    running = False
+                    menu.main_menu()
                 if e.key == pygame.K_z: # undo when 'z' is pressed
                     if len(gs.move_log) > 1:
                         gs.undo_move()
@@ -112,7 +105,7 @@ def main():
             if not ai_thinking:
                 ai_thinking = True
                 return_queue = Queue()
-                move_finder_process = Process(target=ChessAI.find_best_move, args=(gs, valid_moves, return_queue))
+                move_finder_process = Process(target=ChessAI.find_best_move, args=(gs, valid_moves, depth_game, return_queue))
                 move_finder_process.start()
 
             if not move_finder_process.is_alive():
@@ -140,37 +133,6 @@ def main():
 
         clock.tick(max_fps)
         pygame.display.flip()
-
-
-'''
-Ask to user how many player and side
-'''
-def player():
-    while True:
-        player = input('How many player ? (0, 1, 2): ')
-        if player == '0':
-            player_one = False  # white player, set False for AI, True for human
-            player_two = False  # black player, set False for AI, True for human
-            break
-        elif player == '1':
-            side = input('Choose your side (w, b): ')
-            if side == 'w':
-                player_one = True
-                player_two = False
-                break
-            elif side == 'b':
-                player_one = False
-                player_two = True
-                break
-            else:
-                continue
-        elif player == '2':
-            player_one = True
-            player_two = True
-            break
-        else:
-            continue
-    return player_one, player_two
 
 
 '''
@@ -350,7 +312,3 @@ def draw_end_game_text(screen, text):
     screen.blit(text_object, text_location)
     text_object = font.render(text, 0, pygame.Color('blue'))
     screen.blit(text_object, text_location.move(2, 2))
-
-
-if __name__ == '__main__':
-    main()

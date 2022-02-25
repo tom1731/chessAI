@@ -87,8 +87,6 @@ piece_position_scores = {
 checkmate_score = 1000
 stalemate_score = 0
 
-depth_game = 0
-
 
 '''
 picks and return a random move
@@ -100,64 +98,15 @@ def find_random_move(valid_moves):
 '''
 helper methode to make first recursive call
 '''
-def find_best_move(gs, valid_moves, return_queue):
+def find_best_move(gs, valid_moves, depth_game, return_queue):
     global next_move
     next_move = None
     random.shuffle(valid_moves)
-    find_move_negamax_alpha_beta(gs, valid_moves, depth_game, -checkmate_score, checkmate_score, 1 if gs.white_to_move else -1)
+    find_move_negamax_alpha_beta(gs, valid_moves, depth_game, depth_game, -checkmate_score, checkmate_score, 1 if gs.white_to_move else -1)
     return_queue.put(next_move)
 
-def find_move_min_max(gs, valid_moves, depth, white_to_move):
-    global next_move
-    if depth == 0:
-        return score_material(gs.board)
 
-    if white_to_move:
-        max_score = -checkmate_score
-        for move in valid_moves:
-            gs.make_move(move)
-            next_moves = gs.get_valid_moves()
-            score = find_move_min_max(gs, next_moves, depth-1, False)
-            if score > max_score:
-                max_score = score
-                if depth == depth_game:
-                    next_move = move
-            gs.undo_move()
-        return max_score
-
-    else:
-        min_score = checkmate_score
-        for move in valid_moves:
-            gs.make_move(move)
-            next_moves = gs.get_valid_moves()
-            score = find_move_min_max(gs, next_moves, depth-1, True)
-            if score < min_score:
-                min_score = score
-                if depth == depth_game:
-                    next_move = move
-            gs.undo_move()
-        return min_score
-
-
-def find_move_negamax(gs, valid_moves, depth, turn_multiplayer):
-    global next_move
-    if depth == 0:
-        return turn_multiplayer * score_board(gs)
-
-    max_score = -checkmate_score
-    for move in valid_moves:
-        gs.make_move(move)
-        next_moves = gs.get_valid_moves()
-        score = -find_move_negamax(gs, next_moves, depth-1, -turn_multiplayer)
-        if score > max_score:
-            max_score = score
-            if depth == depth_game:
-                next_move = move
-        gs.undo_move()
-    return max_score
-
-
-def find_move_negamax_alpha_beta(gs, valid_moves, depth, alpha, beta, turn_multiplayer):
+def find_move_negamax_alpha_beta(gs, valid_moves, depth, depth_game, alpha, beta, turn_multiplayer):
     global next_move
     if depth == 0:
         return turn_multiplayer * score_board(gs)
@@ -167,7 +116,7 @@ def find_move_negamax_alpha_beta(gs, valid_moves, depth, alpha, beta, turn_multi
     for move in valid_moves:
         gs.make_move(move)
         next_moves = gs.get_valid_moves()
-        score = -find_move_negamax_alpha_beta(gs, next_moves, depth-1, -beta, -alpha, -turn_multiplayer)
+        score = -find_move_negamax_alpha_beta(gs, next_moves, depth-1, depth_game, -beta, -alpha, -turn_multiplayer)
         if score > max_score:
             max_score = score
             if depth == depth_game:
@@ -220,20 +169,5 @@ def score_board(gs):
             score -= 1
         elif gs.black_castle_move:
             score -= 1.9
-
-    return score
-
-
-'''
-score the board based on material
-'''
-def score_material(board):
-    score = 0
-    for row in board:
-        for square in row:
-            if square[0] == 'w':
-                score += piece_score[square[1]]
-            elif square[0] == 'b':
-                score -= piece_score[square[1]]
 
     return score
