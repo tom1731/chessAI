@@ -6,5 +6,5 @@ For try the game follow the next instructions :
 - you must have python installed
 - download the game from here
 - make sure you have all python packages installed by running command : pip install -r requirement.txt
-- run main.py
+- run main.py with python
 - Enjoy !
