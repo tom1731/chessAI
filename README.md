@@ -11,9 +11,11 @@ For try the game yourself follow the next instructions :
 - run main.py with python
 - Enjoy !
 
+
 ## When bot play alone...
 
 https://user-images.githubusercontent.com/73222888/155768619-8e46f46b-e485-4bb2-b317-47e03e3a0986.mp4
+
 
 
 ## Here some screens from the game...
