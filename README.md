@@ -5,12 +5,16 @@ Thanks a lot to Eddie Sharick for his youtube playlist who help me for the base 
 
 
 For try the game yourself follow the next instructions :
-- you must have python and pip installed
-- download the game from here
-- make sure you have all python packages installed by running command : pip install -r requirement.txt
-- run main.py with python
+- You must have python and pip installed
+- Download the game from here
+- Make sure you have all python packages installed by running command : pip install -r requirement.txt
+- Run main.py with python
 - Enjoy !
 
+Command :
+- Press z for undo move
+- Press r for reset the game
+- Press escape for reset the game and open menu
 
 ## When bot play alone...
 
