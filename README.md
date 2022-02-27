@@ -4,8 +4,10 @@ ChessAI is a personal project whose goal is to develop a chess game with python 
 Thanks a lot to Eddie Sharick for his youtube playlist who help me for the base of the game. Do not hesitate to go see it : https://www.youtube.com/watch?v=EnYui0e73Rs&list=PLBwF487qi8MGU81nDGaeNE1EnNEPYWKY_
 
 
-For try the game yourself follow the next instructions :
+For try the game yourself follow the next instructions (work on linux but i can't test on mac, don't work on windows):
 - You must have python and pip installed
+- Install stockfish : - linux : sudo apt install stockfish
+                      - mac : brew install stockfish
 - Download the game from here
 - Make sure you have all python packages installed by running command : pip install -r requirement.txt
 - Run main.py with python
