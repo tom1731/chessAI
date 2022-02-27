@@ -1,14 +1,10 @@
 import pygame
 from pygame.locals import *
-import os
 
 import ChessMain
 
 # Game Initialization
 pygame.init()
-
-# Center the Game Application
-os.environ['SDL_VIDEO_CENTERED'] = '1'
 
 # Game Resolution
 screen_width = 800

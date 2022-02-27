@@ -1,6 +1,7 @@
 import pygame
 import ChessEngine
-import ChessAI
+# import ChessAI
+import ChessStockfish
 import main
 from multiprocessing import Process, Queue
 
@@ -100,22 +101,34 @@ def main_game(player_one, player_two, depth_game):
                         move_finder_process.terminate()
                         ai_thinking = False
 
-        # AI move finder
-        if not game_over and not human_turn and not move_undone:
-            if not ai_thinking:
-                ai_thinking = True
-                return_queue = Queue()
-                move_finder_process = Process(target=ChessAI.find_best_move, args=(gs, valid_moves, depth_game, return_queue))
-                move_finder_process.start()
+        # # AI move finder
+        # if not game_over and not human_turn and not move_undone:
+        #     if not ai_thinking:
+        #         ai_thinking = True
+        #         return_queue = Queue()
+        #         move_finder_process = Process(target=ChessAI.find_best_move, args=(gs, valid_moves, depth_game, return_queue))
+        #         move_finder_process.start()
 
-            if not move_finder_process.is_alive():
-                ai_move = return_queue.get()
-                if ai_move == None:
-                    ai_move = ChessAI.find_random_move(valid_moves)
-                gs.make_move(ai_move)
-                move_made = True
-                animate = True # ai animate
-                ai_thinking = False
+        #     if not move_finder_process.is_alive():
+        #         ai_move = return_queue.get()
+        #         if ai_move == None:
+        #             ai_move = ChessAI.find_random_move(valid_moves)
+        #         gs.make_move(ai_move)
+        #         move_made = True
+        #         animate = True # ai animate
+        #         ai_thinking = False
+
+        # StockFish
+        if not game_over and not human_turn and not move_undone:
+            best_move = ChessStockfish.find_position(gs.sf_move_log)
+            start_square = ChessStockfish.convert_best_move(best_move)[0]
+            end_square = ChessStockfish.convert_best_move(best_move)[1]
+            move = ChessEngine.Move(start_square, end_square, gs.board)
+            for i in range(len(valid_moves)):
+                if move == valid_moves[i]:
+                    gs.make_move(valid_moves[i])
+            move_made = True
+            animate = True  # ai animate
 
         if move_made:
             if animate:
