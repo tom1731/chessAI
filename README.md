@@ -19,7 +19,7 @@ Command :
 - Press r for reset the game
 - Press escape for reset the game and open menu
 
-## When bot play alone...
+## When bot plays alone...
 
 https://user-images.githubusercontent.com/73222888/155891341-a6af4880-d863-4c5c-a7e6-44b75c850f73.mp4
 
