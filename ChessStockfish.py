@@ -4,13 +4,9 @@ import subprocess
 
 def stockfish_init(level):
     path = subprocess.getoutput('which stockfish')
-    try:
-        threads = int(subprocess.getoutput('grep -c ^processor /proc/cpuinfo')) // 2
-        stockfish = Stockfish(path=path, depth=18, parameters={'Threads': threads, 'Skill Level': level})
+    threads = int(subprocess.getoutput('grep -c ^processor /proc/cpuinfo')) // 2
 
-    except:
-        threads = 2
-        stockfish = Stockfish(path=path, depth=18, parameters={'Threads': threads, 'Skill Level': level})
+    stockfish = Stockfish(path=path, depth=18, parameters={'Threads': threads, 'Skill Level': level})
 
     return stockfish
 
