@@ -1,13 +1,18 @@
-from lib2to3.pytree import convert
+from concurrent.futures import thread
 from stockfish import Stockfish
 import subprocess
 
-import ChessEngine
 
-stockfish = Stockfish(path=subprocess.getoutput('which stockfish'), depth=12, parameters={'Threads':4})
+def stockfish_init(level):
+    path = subprocess.getoutput('which stockfish')
+    threads = int(subprocess.getoutput('grep -c ^processor /proc/cpuinfo')) // 2
+
+    stockfish = Stockfish(path=path, depth=18, parameters={'Threads': threads, 'Skill Level': level})
+
+    return stockfish
 
 
-def find_position(sf_move_log):
+def find_position(sf_move_log, stockfish):
     stockfish.set_position(sf_move_log)
     best_move = stockfish.get_best_move()
 

@@ -38,6 +38,7 @@ FPS=15
 
 # Main Menu
 def main_menu():
+    global level
     screen = pygame.display.set_mode((screen_width, screen_height))
     menu = True
 
@@ -112,7 +113,7 @@ def main_menu():
                     elif event.key == pygame.K_DOWN:
                         selected = 'quit'
                     elif event.key == pygame.K_RIGHT:
-                        if level < 2:
+                        if level < 20:
                             level += 1
                         else:
                             level = 0
@@ -121,7 +122,7 @@ def main_menu():
                         if level > 0:
                             level -= 1
                         else:
-                            level = 2
+                            level = 20
                         selected = level
 
                 elif selected == 'quit':
@@ -146,7 +147,7 @@ def main_menu():
 
                 if event.key == pygame.K_RETURN:
                     if selected == 'start':
-                        ChessMain.main_game(player_one, player_two, level)
+                        ChessMain.main_game(player_one, player_two, side, level)
                     elif selected == 'quit':
                         pygame.quit()
                         quit()

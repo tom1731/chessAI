@@ -17,16 +17,17 @@ images = {}
 '''
 The main driver for our code. This will handle user input and updating the graphics.
 '''
-def main_game(player_one, player_two, depth_game):
+def main_game(player_one, player_two, side, level):
     global human_turn
     player_one, player_two = player_one, player_two
+    stockfish = ChessStockfish.stockfish_init(level)
     pygame.init()
     screen = pygame.display.set_mode((board_width + move_log_panel_width, board_height))
     clock = pygame.time.Clock()
     screen.fill(pygame.Color('white'))
     move_log_font = pygame.font.SysFont('Arial', 14, False, False)
-    gs = ChessEngine.GameState()
-    valid_moves = gs.get_valid_moves()
+    gs = ChessEngine.GameState(side)
+    valid_moves = gs.get_valid_moves(side)
     move_made = False
     animate = False
 
@@ -62,7 +63,7 @@ def main_game(player_one, player_two, depth_game):
                         move = ChessEngine.Move(player_clicks[0], player_clicks[1], gs.board)
                         for i in range(len(valid_moves)):
                             if move == valid_moves[i]:
-                                gs.make_move(valid_moves[i])
+                                gs.make_move(valid_moves[i], side)
                                 move_made = True
                                 animate = True # human animate
                                 square_selected = ()
@@ -76,9 +77,9 @@ def main_game(player_one, player_two, depth_game):
                     main.main_menu()
                 if e.key == pygame.K_z: # undo when 'z' is pressed
                     if len(gs.move_log) > 1:
-                        gs.undo_move()
+                        gs.undo_move(side)
                     else:
-                        gs = ChessEngine.GameState()
+                        gs = ChessEngine.GameState(side)
                     square_selected = ()
                     player_clicks = []
                     move_made = True
@@ -90,8 +91,8 @@ def main_game(player_one, player_two, depth_game):
                     move_undone = True
 
                 if e.key == pygame.K_r: # reset the board when 'r' is pressed
-                    gs = ChessEngine.GameState()
-                    valid_moves = gs.get_valid_moves()
+                    gs = ChessEngine.GameState(side)
+                    valid_moves = gs.get_valid_moves(side)
                     square_selected = ()
                     player_clicks = []
                     move_made = False
@@ -120,25 +121,25 @@ def main_game(player_one, player_two, depth_game):
 
         # StockFish
         if not game_over and not human_turn and not move_undone:
-            best_move = ChessStockfish.find_position(gs.sf_move_log)
+            best_move = ChessStockfish.find_position(gs.sf_move_log, stockfish)
             start_square = ChessStockfish.convert_best_move(best_move)[0]
             end_square = ChessStockfish.convert_best_move(best_move)[1]
             move = ChessEngine.Move(start_square, end_square, gs.board)
             for i in range(len(valid_moves)):
                 if move == valid_moves[i]:
-                    gs.make_move(valid_moves[i])
+                    gs.make_move(valid_moves[i], side)
             move_made = True
             animate = True  # ai animate
 
         if move_made:
             if animate:
-                animate_move(gs.move_log[-1], screen, gs.board, clock, move_log_font)
-            valid_moves = gs.get_valid_moves()
+                animate_move(gs.move_log[-1], screen, gs.board, clock, move_log_font, side)
+            valid_moves = gs.get_valid_moves(side)
             move_made = False
             animate = False
             move_undone = False
 
-        draw_game_state(screen, gs, valid_moves, square_selected, move_log_font)
+        draw_game_state(screen, gs, valid_moves, square_selected, move_log_font, side)
 
         if gs.check_mate or gs.draw:
             game_over = True
@@ -162,8 +163,8 @@ def load_images():
 '''
 Responsible for all the graphics within a current game state.
 '''
-def draw_game_state(screen, gs, valid_moves, square_selected, move_log_font):
-    draw_board(screen, move_log_font)
+def draw_game_state(screen, gs, valid_moves, square_selected, move_log_font, side):
+    draw_board(screen, move_log_font, side)
     highlight_squares(screen, gs, valid_moves, square_selected)
     draw_pieces(screen, gs.board)
     draw_move_log(screen, gs, move_log_font)
@@ -172,11 +173,17 @@ def draw_game_state(screen, gs, valid_moves, square_selected, move_log_font):
 '''
 Draw the square on the board.
 '''
-def draw_board(screen, font):
+def draw_board(screen, font, side):
     global colors
     colors = [pygame.Color('white'), pygame.Color('gray')]
-    text_letter = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
-    text_number = ['8', '7', '6', '5', '4', '3', '2', '1']
+
+    if side == '< white >':
+        text_letter = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+        text_number = ['8', '7', '6', '5', '4', '3', '2', '1']
+    else:
+        text_letter = ['h', 'g', 'f', 'e', 'd', 'c', 'b', 'a']
+        text_number = ['1', '2', '3', '4', '5', '6', '7', '8']
+
 
     for row in range(dimension):
         for col in range(dimension):
@@ -293,7 +300,7 @@ def draw_move_log(screen, gs, font):
 '''
 Animating a move
 '''
-def animate_move(move, screen, board, clock, move_log_font):
+def animate_move(move, screen, board, clock, move_log_font, side):
     global colors
     delta_row = move.end_row - move.start_row
     delta_col = move.end_col - move.start_col
@@ -301,7 +308,7 @@ def animate_move(move, screen, board, clock, move_log_font):
     frame_count = (abs(delta_row) + abs(delta_col)) * frames_per_square
     for frame in range(frame_count + 1):
         row, col = (move.start_row + delta_row*frame/frame_count, move.start_col + delta_col*frame/frame_count)
-        draw_board(screen, move_log_font)
+        draw_board(screen, move_log_font, side)
         draw_pieces(screen, board)
         # erase the piece moved from its ending square
         color = colors[(move.end_row + move.end_col) % 2]
