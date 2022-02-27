@@ -11,6 +11,7 @@ For try the game yourself follow the next instructions :
 - Run main.py with python
 - Enjoy !
 
+
 Command :
 - Press z for undo move
 - Press r for reset the game
