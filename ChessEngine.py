@@ -75,7 +75,7 @@ class GameState():
         self.board[move.start_row][move.start_col] = '--'
         self.board[move.end_row][move.end_col] = move.piece_moved
         self.move_log.append(move)
-        self.convert_sf_move_log(move)
+        self.convert_sf_move_log(move, side)
         self.white_to_move = not self.white_to_move
         # update the king location if moved
         if move.piece_moved == 'wK':
@@ -207,9 +207,13 @@ class GameState():
     '''
     Convert move for give to stockfish
     '''
-    def convert_sf_move_log(self, move):
-        letter = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
-        number = ['8', '7', '6', '5', '4', '3', '2', '1']
+    def convert_sf_move_log(self, move, side):
+        if side == '< white >':
+            letter = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+            number = ['8', '7', '6', '5', '4', '3', '2', '1']
+        else:
+            letter = ['h', 'g', 'f', 'e', 'd', 'c', 'b', 'a']
+            number = ['1', '2', '3', '4', '5', '6', '7', '8']
         position = letter[move.start_col] + number[move.start_row] + letter[move.end_col] + number[move.end_row]
         if move.is_pawn_promotion:
             position = letter[move.start_col] + number[move.start_row] + letter[move.end_col] + number[move.end_row] + 'q'

@@ -35,17 +35,16 @@ font = "Raleway-Regular.ttf"
 clock = pygame.time.Clock()
 FPS=15
 
-
 # Main Menu
-def main_menu():
+def main_menu(player, side, difficulty):
     global level
     screen = pygame.display.set_mode((screen_width, screen_height))
     menu = True
 
     selected = 'start'
-    player = '< 1 player >'
-    side = '< white >'
-    level = 0
+    player = player
+    side = side
+    level = difficulty
 
     while menu:
         for event in pygame.event.get():
@@ -147,7 +146,7 @@ def main_menu():
 
                 if event.key == pygame.K_RETURN:
                     if selected == 'start':
-                        ChessMain.main_game(player_one, player_two, side, level)
+                        ChessMain.main_game(player_one, player_two, side, level, player)
                     elif selected == 'quit':
                         pygame.quit()
                         quit()
@@ -202,4 +201,4 @@ def main_menu():
 
 
 if __name__ == '__main__':
-    main_menu()
+    main_menu('< 1 player >', '< white >', 0)

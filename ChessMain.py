@@ -3,7 +3,7 @@ import ChessEngine
 # import ChessAI
 import ChessStockfish
 import main
-from multiprocessing import Process, Queue
+# from multiprocessing import Process, Queue
 
 board_width = board_height = 512
 move_log_panel_width = 300
@@ -17,7 +17,7 @@ images = {}
 '''
 The main driver for our code. This will handle user input and updating the graphics.
 '''
-def main_game(player_one, player_two, side, level):
+def main_game(player_one, player_two, side, level, player):
     global human_turn
     player_one, player_two = player_one, player_two
     stockfish = ChessStockfish.stockfish_init(level)
@@ -74,7 +74,7 @@ def main_game(player_one, player_two, side, level):
             elif e.type == pygame.KEYDOWN:
                 if e.key == pygame.K_ESCAPE:
                     running = False
-                    main.main_menu()
+                    main.main_menu(player, side, level)
                 if e.key == pygame.K_z: # undo when 'z' is pressed
                     if len(gs.move_log) > 1:
                         gs.undo_move(side)
@@ -122,12 +122,20 @@ def main_game(player_one, player_two, side, level):
         # StockFish
         if not game_over and not human_turn and not move_undone:
             best_move = ChessStockfish.find_position(gs.sf_move_log, stockfish)
-            start_square = ChessStockfish.convert_best_move(best_move)[0]
-            end_square = ChessStockfish.convert_best_move(best_move)[1]
+            start_square = ChessStockfish.convert_best_move(best_move, side)[0]
+            end_square = ChessStockfish.convert_best_move(best_move, side)[1]
             move = ChessEngine.Move(start_square, end_square, gs.board)
+            check = False
             for i in range(len(valid_moves)):
                 if move == valid_moves[i]:
                     gs.make_move(valid_moves[i], side)
+                    check = True
+            if check == False:
+                print(f'best_move: {best_move}')
+                print(start_square, end_square)
+                print(move)
+                print(gs.sf_move_log)
+                print()
             move_made = True
             animate = True  # ai animate
 
