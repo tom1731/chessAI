@@ -21,9 +21,7 @@ Command :
 
 ## When bot play alone...
 
-https://user-images.githubusercontent.com/73222888/155768619-8e46f46b-e485-4bb2-b317-47e03e3a0986.mp4
-
-
+https://user-images.githubusercontent.com/73222888/155891341-a6af4880-d863-4c5c-a7e6-44b75c850f73.mp4
 
 ## Here some screens from the game...
 
